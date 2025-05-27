@@ -1,4 +1,4 @@
-# enl_parenting
+# Home Harmony
 
 A cross-platform Flutter application for families to manage rules, rewards, and consequences for children.
 

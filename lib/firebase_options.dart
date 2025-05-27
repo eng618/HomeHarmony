@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '77707132862',
     projectId: 'enl-parenting',
     storageBucket: 'enl-parenting.firebasestorage.app',
-    iosBundleId: 'com.example.enlParenting',
+    iosBundleId: 'com.garciaericn.homeharmony',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '77707132862',
     projectId: 'enl-parenting',
     storageBucket: 'enl-parenting.firebasestorage.app',
-    iosBundleId: 'com.example.enlParenting',
+    iosBundleId: 'com.garciaericn.homeharmony',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

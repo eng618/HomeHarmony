@@ -3,8 +3,8 @@
     "platforms": {
       "android": {
         "default": {
-          "projectId": "enl-parenting",
-          "appId": "1:77707132862:android:15973ea2e4c6b0ed9083ef",
+          "projectId": "home-harmony-d0778",
+          "appId": "1:69205718699:android:1a8ffe019ad38b348669ee",
           "fileOutput": "android/app/google-services.json"
         }
       },
@@ -21,5 +21,10 @@
         }
       }
     }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [{ "source": "**", "destination": "/index.html" }]
   }
 }

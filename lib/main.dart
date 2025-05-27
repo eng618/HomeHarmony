@@ -114,6 +114,62 @@ class ProfileScreen extends StatelessWidget {
     return FirebaseFirestore.instance.collection('users').doc(user.uid).get();
   }
 
+  Future<void> _addChildAccount(BuildContext context) async {
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+    String? error;
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Add Child Account'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(labelText: 'Child Email'),
+            ),
+            TextField(
+              controller: passwordController,
+              decoration: const InputDecoration(labelText: 'Password'),
+              obscureText: true,
+            ),
+            if (error != null) ...[
+              const SizedBox(height: 8),
+              Text(error!, style: const TextStyle(color: Colors.red)),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              try {
+                final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                  email: emailController.text.trim(),
+                  password: passwordController.text.trim(),
+                );
+                await FirebaseFirestore.instance.collection('users').doc(cred.user!.uid).set({
+                  'email': cred.user!.email,
+                  'role': 'child',
+                  'parent': user.uid,
+                });
+                Navigator.of(ctx).pop();
+              } on FirebaseAuthException catch (e) {
+                error = e.message;
+                (ctx as Element).markNeedsBuild();
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
@@ -135,6 +191,11 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text('Role: $role'),
                 const SizedBox(height: 24),
+                if (role == 'parent')
+                  ElevatedButton(
+                    onPressed: () => _addChildAccount(context),
+                    child: const Text('Add Child Account'),
+                  ),
                 ElevatedButton(
                   onPressed: () async {
                     final newRole = role == 'parent' ? 'child' : 'parent';

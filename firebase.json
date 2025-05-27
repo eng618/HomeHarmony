@@ -10,13 +10,13 @@
       },
       "dart": {
         "lib/firebase_options.dart": {
-          "projectId": "enl-parenting",
+          "projectId": "home-harmony-d0778",
           "configurations": {
-            "android": "1:77707132862:android:15973ea2e4c6b0ed9083ef",
-            "ios": "1:77707132862:ios:030d9acd604467dd9083ef",
-            "macos": "1:77707132862:ios:030d9acd604467dd9083ef",
-            "web": "1:77707132862:web:8733a18dd01c36839083ef",
-            "windows": "1:77707132862:web:53bd50b874d69c1b9083ef"
+            "android": "1:69205718699:android:1a8ffe019ad38b348669ee",
+            "ios": "1:69205718699:ios:7e4799e1fbd539d58669ee",
+            "macos": "1:69205718699:ios:1d68f19e9a1e4c628669ee",
+            "web": "1:69205718699:web:7d549b5a7509df648669ee",
+            "windows": "1:69205718699:web:a01f4992633013888669ee"
           }
         }
       }

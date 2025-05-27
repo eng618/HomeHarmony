@@ -191,11 +191,47 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text('Role: $role'),
                 const SizedBox(height: 24),
-                if (role == 'parent')
+                if (role == 'parent') ...[
                   ElevatedButton(
                     onPressed: () => _addChildAccount(context),
                     child: const Text('Add Child Account'),
                   ),
+                  const SizedBox(height: 24),
+                  const Text('Children:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    stream: FirebaseFirestore.instance
+                        .collection('users')
+                        .where('parent', isEqualTo: user.uid)
+                        .snapshots(),
+                    builder: (context, childSnapshot) {
+                      if (childSnapshot.connectionState == ConnectionState.waiting) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      final children = childSnapshot.data?.docs ?? [];
+                      if (children.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: Text('No children added.'),
+                        );
+                      }
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: children.length,
+                        itemBuilder: (context, idx) {
+                          final child = children[idx].data();
+                          return ListTile(
+                            leading: const Icon(Icons.child_care),
+                            title: Text(child['email'] ?? 'No email'),
+                            subtitle: Text('Role: ${child['role'] ?? 'child'}'),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
                 ElevatedButton(
                   onPressed: () async {
                     final newRole = role == 'parent' ? 'child' : 'parent';

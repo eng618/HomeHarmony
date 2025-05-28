@@ -9,6 +9,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/auth/auth_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'screens/profile/settings_screen.dart';
+import 'screens/home/home_screen.dart';
 import 'utils/app_theme.dart';
 
 void main() async {
@@ -98,14 +99,22 @@ class _MyAppState extends State<MyApp> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasData) {
-            return ProfileScreen(
-              user: snapshot.data!,
-              onOpenSettings: () {
+            return HomeScreen(
+              onOpenProfile: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => SettingsScreen(
-                      currentThemeMode: _themeMode,
-                      onThemeModeChanged: _setThemeMode,
+                    builder: (context) => ProfileScreen(
+                      user: snapshot.data!,
+                      onOpenSettings: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => SettingsScreen(
+                              currentThemeMode: _themeMode,
+                              onThemeModeChanged: _setThemeMode,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 );

@@ -21,9 +21,30 @@ class _AuthScreenState extends State<AuthScreen> {
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: _isLogin
-              ? LoginForm(onSwitch: _toggleForm)
-              : SignupForm(onSwitch: _toggleForm),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Logo
+              Image.asset('assets/logo.png', height: 100, fit: BoxFit.contain),
+              const SizedBox(height: 24),
+              // Branding: App name
+              Text(
+                'Home Harmony',
+                style:
+                    Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ) ??
+                    const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              _isLogin
+                  ? LoginForm(onSwitch: _toggleForm)
+                  : SignupForm(onSwitch: _toggleForm),
+            ],
+          ),
         ),
       ),
     );

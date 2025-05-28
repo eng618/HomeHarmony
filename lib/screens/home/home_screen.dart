@@ -1,0 +1,62 @@
+import 'package:flutter/material.dart';
+
+class HomeScreen extends StatelessWidget {
+  final VoidCallback? onOpenProfile;
+  const HomeScreen({super.key, this.onOpenProfile});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home Harmony'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            tooltip: 'Profile',
+            onPressed: onOpenProfile,
+          ),
+        ],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          _SectionStub(title: 'Family Members', icon: Icons.group),
+          const SizedBox(height: 24),
+          _SectionStub(title: 'Rules', icon: Icons.rule),
+          const SizedBox(height: 24),
+          _SectionStub(title: 'Rewards', icon: Icons.emoji_events),
+          const SizedBox(height: 24),
+          _SectionStub(title: 'Consequences', icon: Icons.warning),
+          const SizedBox(height: 24),
+          _SectionStub(title: 'Activity Feed', icon: Icons.history),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionStub extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  const _SectionStub({required this.title, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+        child: Row(
+          children: [
+            Icon(icon, size: 40, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 24),
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
+            const Spacer(),
+            const Icon(Icons.chevron_right, color: Colors.grey),
+          ],
+        ),
+      ),
+    );
+  }
+}

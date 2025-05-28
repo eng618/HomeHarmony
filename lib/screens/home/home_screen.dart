@@ -46,11 +46,36 @@ class HomeScreen extends StatelessWidget {
             child: _SectionStub(title: 'Rules', icon: Icons.rule),
           ),
           const SizedBox(height: 24),
-          _SectionStub(title: 'Rewards', icon: Icons.emoji_events),
+          GestureDetector(
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Rewards feature coming soon!')),
+              );
+            },
+            child: _SectionStub(title: 'Rewards', icon: Icons.emoji_events),
+          ),
           const SizedBox(height: 24),
-          _SectionStub(title: 'Consequences', icon: Icons.warning),
+          GestureDetector(
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Consequences feature coming soon!'),
+                ),
+              );
+            },
+            child: _SectionStub(title: 'Consequences', icon: Icons.warning),
+          ),
           const SizedBox(height: 24),
-          _SectionStub(title: 'Activity Feed', icon: Icons.history),
+          GestureDetector(
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Activity Feed feature coming soon!'),
+                ),
+              );
+            },
+            child: _SectionStub(title: 'Activity Feed', icon: Icons.history),
+          ),
         ],
       ),
     );

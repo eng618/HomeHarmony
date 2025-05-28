@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatelessWidget {
   final User user;
-  const ProfileScreen({super.key, required this.user});
+  final VoidCallback? onOpenSettings;
+  const ProfileScreen({super.key, required this.user, this.onOpenSettings});
 
   Future<DocumentSnapshot<Map<String, dynamic>>> getProfile() async {
     return FirebaseFirestore.instance.collection('users').doc(user.uid).get();
@@ -104,6 +105,11 @@ class ProfileScreen extends StatelessWidget {
           appBar: AppBar(
             title: const Text('Profile'),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.settings),
+                tooltip: 'Settings',
+                onPressed: onOpenSettings,
+              ),
               IconButton(
                 icon: const Icon(Icons.logout),
                 tooltip: 'Sign Out',

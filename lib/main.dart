@@ -1,257 +1,42 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'env_web.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'screens/auth/auth_screen.dart';
+import 'screens/profile/profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  runApp(const MyApp());
-}
-
-class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
-
-  @override
-  State<AuthScreen> createState() => _AuthScreenState();
-}
-
-class _AuthScreenState extends State<AuthScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  bool _isLogin = true;
-  String? _error;
-  bool _loading = false;
-
-  Future<void> _submit() async {
-    setState(() { _loading = true; _error = null; });
-    try {
-      UserCredential cred;
-      if (_isLogin) {
-        cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-      } else {
-        cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-        // Set default role to parent for new users
-        await FirebaseFirestore.instance.collection('users').doc(cred.user!.uid).set({
-          'email': cred.user!.email,
-          'role': 'parent',
-        });
-      }
-    } on FirebaseAuthException catch (e) {
-      setState(() { _error = e.message; });
-    } finally {
-      setState(() { _loading = false; });
+  try {
+    await dotenv.load();
+  } catch (e) {
+    if (!kIsWeb) {
+      // Only print error for non-web, since web will always fail
+      debugPrint('Failed to load .env: $e');
     }
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(_isLogin ? 'Sign In' : 'Sign Up')),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (v) => v != null && v.contains('@') ? null : 'Enter a valid email',
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
-                  validator: (v) => v != null && v.length >= 6 ? null : 'Min 6 characters',
-                ),
-                const SizedBox(height: 24),
-                if (_error != null) ...[
-                  Text(_error!, style: const TextStyle(color: Colors.red)),
-                  const SizedBox(height: 12),
-                ],
-                _loading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) _submit();
-                      },
-                      child: Text(_isLogin ? 'Sign In' : 'Sign Up'),
-                    ),
-                TextButton(
-                  onPressed: () => setState(() => _isLogin = !_isLogin),
-                  child: Text(_isLogin ? 'Create an account' : 'Already have an account? Sign In'),
-                ),
-              ],
-            ),
-          ),
-        ),
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: FirebaseOptions(
+        apiKey: firebaseConfig['apiKey']!,
+        authDomain: firebaseConfig['authDomain'],
+        projectId: firebaseConfig['projectId']!,
+        storageBucket: firebaseConfig['storageBucket']!,
+        messagingSenderId: firebaseConfig['messagingSenderId']!,
+        appId: firebaseConfig['appId']!,
+        measurementId: firebaseConfig['measurementId'],
       ),
     );
-  }
-}
-
-class ProfileScreen extends StatelessWidget {
-  final User user;
-  const ProfileScreen({super.key, required this.user});
-
-  Future<DocumentSnapshot<Map<String, dynamic>>> getProfile() async {
-    return FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-  }
-
-  Future<void> _addChildAccount(BuildContext context) async {
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-    String? error;
-    await showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Add Child Account'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Child Email'),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            if (error != null) ...[
-              const SizedBox(height: 8),
-              Text(error!, style: const TextStyle(color: Colors.red)),
-            ],
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              try {
-                final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                  email: emailController.text.trim(),
-                  password: passwordController.text.trim(),
-                );
-                await FirebaseFirestore.instance.collection('users').doc(cred.user!.uid).set({
-                  'email': cred.user!.email,
-                  'role': 'child',
-                  'parent': user.uid,
-                });
-                Navigator.of(ctx).pop();
-              } on FirebaseAuthException catch (e) {
-                error = e.message;
-                (ctx as Element).markNeedsBuild();
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
+  } else {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
     );
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-      future: getProfile(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
-        }
-        final data = snapshot.data?.data();
-        final role = data?['role'] ?? 'unknown';
-        return Scaffold(
-          appBar: AppBar(title: const Text('Profile')),
-          body: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Email: ${user.email ?? ''}'),
-                const SizedBox(height: 12),
-                Text('Role: $role'),
-                const SizedBox(height: 24),
-                if (role == 'parent') ...[
-                  ElevatedButton(
-                    onPressed: () => _addChildAccount(context),
-                    child: const Text('Add Child Account'),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text('Children:', style: TextStyle(fontWeight: FontWeight.bold)),
-                  StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                    stream: FirebaseFirestore.instance
-                        .collection('users')
-                        .where('parent', isEqualTo: user.uid)
-                        .snapshots(),
-                    builder: (context, childSnapshot) {
-                      if (childSnapshot.connectionState == ConnectionState.waiting) {
-                        return const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      final children = childSnapshot.data?.docs ?? [];
-                      if (children.isEmpty) {
-                        return const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Text('No children added.'),
-                        );
-                      }
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: children.length,
-                        itemBuilder: (context, idx) {
-                          final child = children[idx].data();
-                          return ListTile(
-                            leading: const Icon(Icons.child_care),
-                            title: Text(child['email'] ?? 'No email'),
-                            subtitle: Text('Role: ${child['role'] ?? 'child'}'),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
-                ElevatedButton(
-                  onPressed: () async {
-                    final newRole = role == 'parent' ? 'child' : 'parent';
-                    await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-                      'email': user.email,
-                      'role': newRole,
-                    }, SetOptions(merge: true));
-                    (context as Element).reassemble();
-                  },
-                  child: Text('Switch to ${role == 'parent' ? 'child' : 'parent'} role'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -280,6 +65,34 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
+      builder: (context, child) {
+        ErrorWidget.builder = (FlutterErrorDetails details) {
+          return Scaffold(
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error, color: Colors.red, size: 64),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'An error occurred',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      details.exceptionAsString(),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        };
+        return child!;
+      },
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
@@ -330,7 +143,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> fetchSampleData() async {
-    final response = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/todos/1'));
+    final response = await http.get(
+      Uri.parse('https://jsonplaceholder.typicode.com/todos/1'),
+    );
     if (response.statusCode == 200) {
       setState(() {
         _apiResponse = response.body;

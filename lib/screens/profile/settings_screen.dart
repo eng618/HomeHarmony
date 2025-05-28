@@ -78,7 +78,9 @@ class SettingsScreen extends StatelessWidget {
                     ],
                   ),
                 );
+                // After the confirmation dialog, check if the widget is still mounted
                 if (confirmed == true) {
+                  if (!context.mounted) return;
                   // Show loading dialog
                   showDialog(
                     context: context,
@@ -87,10 +89,16 @@ class SettingsScreen extends StatelessWidget {
                         const Center(child: CircularProgressIndicator()),
                   );
                   final result = await AuthService.deleteAccount();
+                  // After deleting the account, check if the widget is still mounted
+                  // before trying to interact with the Navigator or ScaffoldMessenger.
+                  if (!context.mounted) return;
                   Navigator.of(context).pop(); // Remove loading dialog
                   if (result == null) {
                     // Account deleted, pop to login screen
                     Navigator.of(context).popUntil((route) => route.isFirst);
+                    // After popUntil, this screen's context is no longer valid.
+                    // Check mounted status again before trying to show a SnackBar.
+                    if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Account deleted successfully.'),

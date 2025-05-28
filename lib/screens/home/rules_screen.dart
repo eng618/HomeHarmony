@@ -33,7 +33,12 @@ class _RulesScreenState extends State<RulesScreen> {
     String? error;
     bool loading = false;
     final children = await _fetchChildren();
+
+    if (!mounted) {
+      return;
+    } // Ensures the widget is still mounted before using its context for showDialog.
     await showDialog(
+      // The 'context' passed here is from _RulesScreenState.
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setState) => AlertDialog(
@@ -162,6 +167,8 @@ class _RulesScreenState extends State<RulesScreen> {
                         } else {
                           await ruleDoc.reference.update(data);
                         }
+                        // Don't use BuildContext after an async gap
+                        if (!ctx.mounted) return;
                         if (Navigator.of(ctx).canPop()) {
                           Navigator.of(ctx).pop();
                         }

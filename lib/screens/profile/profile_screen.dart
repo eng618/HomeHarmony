@@ -124,8 +124,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         setState(() => _signingOut = true);
                         try {
                           await FirebaseAuth.instance.signOut();
+                          if (!context.mounted) return;
                         } catch (e) {
                           setState(() => _signingOut = false);
+                          if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(

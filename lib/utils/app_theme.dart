@@ -9,7 +9,6 @@ final Color kNeutralDark = const Color(0xFF264653); // Deep navy
 ThemeData buildAppTheme({bool darkMode = false}) {
   final brightness = darkMode ? Brightness.dark : Brightness.light;
   final background = darkMode ? kNeutralDark : kNeutralLight;
-  final onBackground = darkMode ? kNeutralLight : kNeutralDark;
   final surface = darkMode ? kNeutralDark : Colors.white;
   final onSurface = darkMode ? kNeutralLight : kNeutralDark;
   final appBarBg = darkMode ? kNeutralDark : kPrimaryColor;

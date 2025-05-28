@@ -75,6 +75,8 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
                               'age': age,
                               'createdAt': FieldValue.serverTimestamp(),
                             });
+                        // Don't use BuildContext after an async gap
+                        if (!ctx.mounted) return;
                         if (Navigator.of(ctx).canPop()) {
                           Navigator.of(ctx).pop();
                         }
@@ -154,6 +156,8 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
                               'role': 'child',
                               'parent': widget.user.uid,
                             });
+                        // Don't use BuildContext after an async gap
+                        if (!ctx.mounted) return;
                         if (Navigator.of(ctx).canPop()) {
                           Navigator.of(ctx).pop();
                         }
@@ -312,6 +316,8 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
                                                           'name': newName,
                                                           'age': newAge,
                                                         });
+                                                    // Don't use BuildContext after an async gap
+                                                    if (!ctx.mounted) return;
                                                     if (Navigator.of(
                                                       ctx,
                                                     ).canPop()) {
@@ -363,6 +369,8 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
                                   ),
                                 );
                                 if (confirm == true) {
+                                  // Don't use BuildContext after an async gap
+                                  if (!context.mounted) return;
                                   await childDoc.reference.delete();
                                 }
                               },

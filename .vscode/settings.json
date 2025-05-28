@@ -1,3 +1,4 @@
 {
-  "cSpell.words": ["firestore", "homeharmony"]
+  "cSpell.words": ["firestore", "homeharmony"],
+  "java.configuration.updateBuildConfiguration": "automatic"
 }

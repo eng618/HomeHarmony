@@ -1,0 +1,99 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Build the Flutter application
+    cmds:
+      - flutter build web
+
+  deploy:
+    desc: Deploy the application to Firebase Hosting
+    deps:
+      - build
+    cmds:
+      - firebase deploy --only hosting
+
+  serve:
+    desc: Serve the application locally
+    cmds:
+      - flutter run -d chrome
+
+  clean:
+    desc: Clean the Flutter build cache
+    cmds:
+      - flutter clean
+
+  get:
+    desc: Get Flutter dependencies
+    cmds:
+      - flutter pub get
+
+  upgrade:
+    desc: Upgrade Flutter dependencies
+    cmds:
+      - flutter pub upgrade
+
+  analyze:
+    desc: Analyze the Flutter code
+    cmds:
+      - flutter analyze
+
+  test:
+    desc: Run Flutter tests
+    cmds:
+      - flutter test
+
+  format:
+    desc: Format the Flutter code
+    cmds:
+      - flutter format .
+
+  lint:
+    desc: Run Flutter linting
+    cmds:
+      - flutter analyze --no-fatal-infos --no-fatal-warnings
+
+  firebase:login:
+    desc: Log in to Firebase
+    cmds:
+      - firebase login
+
+  firebase:init:
+    desc: Initialize Firebase in the project
+    cmds:
+      - firebase init
+
+  firebase:emulators:start:
+    desc: Start Firebase emulators
+    cmds:
+      - firebase emulators:start
+
+  firebase:emulators:exec:
+    desc: Execute a command with Firebase emulators running
+    cmds:
+      - firebase emulators:exec "{{.CLI_ARGS}}"
+
+  firebase:functions:deploy:
+    desc: Deploy Firebase functions
+    cmds:
+      - firebase deploy --only functions
+
+  firebase:firestore:rules:deploy:
+    desc: Deploy Firestore security rules
+    cmds:
+      - firebase deploy --only firestore:rules
+
+  firebase:storage:rules:deploy:
+    desc: Deploy Cloud Storage security rules
+    cmds:
+      - firebase deploy --only storage:rules
+
+  firebase:hosting:deploy:
+    desc: Deploy Firebase Hosting
+    cmds:
+      - firebase deploy --only hosting
+
+  firebase:deploy:all:
+    desc: Deploy all Firebase services
+    cmds:
+      - firebase deploy

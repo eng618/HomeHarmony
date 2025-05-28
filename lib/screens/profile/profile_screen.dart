@@ -14,58 +14,76 @@ class ProfileScreen extends StatelessWidget {
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
     String? error;
+    bool loading = false;
     await showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Add Child Account'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Child Email'),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
-            if (error != null) ...[
-              const SizedBox(height: 8),
-              Text(error!, style: const TextStyle(color: Colors.red)),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => AlertDialog(
+          title: const Text('Add Child Account'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(labelText: 'Child Email'),
+              ),
+              TextField(
+                controller: passwordController,
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true,
+              ),
+              if (error != null) ...[
+                const SizedBox(height: 8),
+                Text(error!, style: const TextStyle(color: Colors.red)),
+              ],
+              if (loading) ...[
+                const SizedBox(height: 16),
+                const CircularProgressIndicator(),
+              ],
             ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: loading ? null : () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: loading
+                  ? null
+                  : () async {
+                      setState(() {
+                        error = null;
+                        loading = true;
+                      });
+                      try {
+                        final cred = await FirebaseAuth.instance
+                            .createUserWithEmailAndPassword(
+                              email: emailController.text.trim(),
+                              password: passwordController.text.trim(),
+                            );
+                        await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(cred.user!.uid)
+                            .set({
+                              'email': cred.user!.email,
+                              'role': 'child',
+                              'parent': user.uid,
+                            });
+                        // Ensure dialog is only popped if still mounted
+                        if (Navigator.of(ctx).canPop()) {
+                          Navigator.of(ctx).pop();
+                        }
+                      } on FirebaseAuthException catch (e) {
+                        setState(() {
+                          error = e.message;
+                          loading = false;
+                        });
+                      }
+                    },
+              child: const Text('Add'),
+            ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              try {
-                final cred = await FirebaseAuth.instance
-                    .createUserWithEmailAndPassword(
-                      email: emailController.text.trim(),
-                      password: passwordController.text.trim(),
-                    );
-                await FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(cred.user!.uid)
-                    .set({
-                      'email': cred.user!.email,
-                      'role': 'child',
-                      'parent': user.uid,
-                    });
-                Navigator.of(ctx).pop();
-              } on FirebaseAuthException catch (e) {
-                error = e.message;
-                // Use StatefulBuilder to update dialog state instead of markNeedsBuild
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
       ),
     );
   }
@@ -83,7 +101,18 @@ class ProfileScreen extends StatelessWidget {
         final data = snapshot.data?.data();
         final role = data?['role'] ?? 'unknown';
         return Scaffold(
-          appBar: AppBar(title: const Text('Profile')),
+          appBar: AppBar(
+            title: const Text('Profile'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.logout),
+                tooltip: 'Sign Out',
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                },
+              ),
+            ],
+          ),
           body: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -137,27 +166,27 @@ class ProfileScreen extends StatelessWidget {
                       );
                     },
                   ),
-                ],
-                ElevatedButton(
-                  onPressed: () async {
-                    final newRole = role == 'parent' ? 'child' : 'parent';
-                    await FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(user.uid)
-                        .set({
-                          'email': user.email,
-                          'role': newRole,
-                        }, SetOptions(merge: true));
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => ProfileScreen(user: user),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'Switch to ${role == 'parent' ? 'child' : 'parent'} role',
+                  ElevatedButton(
+                    onPressed: () async {
+                      final newRole = role == 'parent' ? 'child' : 'parent';
+                      await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(user.uid)
+                          .set({
+                            'email': user.email,
+                            'role': newRole,
+                          }, SetOptions(merge: true));
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => ProfileScreen(user: user),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Switch to ${role == 'parent' ? 'child' : 'parent'} role',
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

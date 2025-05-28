@@ -24,6 +24,7 @@ class _LoginFormState extends State<LoginForm> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final result = await AuthService.signIn(email, password);
+    // If result is null, user is signed in. If not, it's an error message.
     setState(() {
       _loading = false;
       _error = result;

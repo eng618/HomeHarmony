@@ -30,4 +30,22 @@ class AuthService {
       return e.message;
     }
   }
+
+  static Future<String?> deleteAccount() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return 'No user is currently signed in.';
+      final uid = user.uid;
+      // Delete user data from Firestore (customize as needed for your data model)
+      await FirebaseFirestore.instance.collection('users').doc(uid).delete();
+      // TODO: Delete other user-related data (e.g., children, rules, etc.)
+      await user.delete();
+      return null;
+    } on FirebaseAuthException catch (e) {
+      // If recent login is required, handle accordingly in the UI
+      return e.message;
+    } catch (e) {
+      return e.toString();
+    }
+  }
 }

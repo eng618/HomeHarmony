@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
 
 class SettingsScreen extends StatelessWidget {
   final ThemeMode currentThemeMode;
@@ -78,12 +79,30 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 );
                 if (confirmed == true) {
-                  // TODO: Implement account and data deletion logic here
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Account deletion not yet implemented.'),
-                    ),
+                  // Show loading dialog
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (ctx) =>
+                        const Center(child: CircularProgressIndicator()),
                   );
+                  final result = await AuthService.deleteAccount();
+                  Navigator.of(context).pop(); // Remove loading dialog
+                  if (result == null) {
+                    // Account deleted, pop to login screen
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Account deleted successfully.'),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Account deletion failed: $result'),
+                      ),
+                    );
+                  }
                 }
               },
             ),

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'family_members_screen.dart';
+import 'rules_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final VoidCallback? onOpenProfile;
@@ -36,7 +37,14 @@ class HomeScreen extends StatelessWidget {
             child: _SectionStub(title: 'Family Members', icon: Icons.group),
           ),
           const SizedBox(height: 24),
-          _SectionStub(title: 'Rules', icon: Icons.rule),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => RulesScreen(user: user)),
+              );
+            },
+            child: _SectionStub(title: 'Rules', icon: Icons.rule),
+          ),
           const SizedBox(height: 24),
           _SectionStub(title: 'Rewards', icon: Icons.emoji_events),
           const SizedBox(height: 24),

@@ -69,6 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 controller: emailController,
                 decoration: const InputDecoration(labelText: 'Child Email'),
               ),
+              const SizedBox(height: 12),
               TextField(
                 controller: passwordController,
                 decoration: const InputDecoration(labelText: 'Password'),
@@ -131,6 +132,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       } on FirebaseAuthException catch (e) {
                         setState(() {
                           error = e.message;
+                          loading = false;
+                        });
+                      }
+                    },
+              child: const Text('Add'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _addChildProfile(BuildContext context) async {
+    final nameController = TextEditingController();
+    final ageController = TextEditingController();
+    String? error;
+    bool loading = false;
+    await showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => AlertDialog(
+          title: const Text('Add Child Profile'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'Child Name'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: ageController,
+                decoration: const InputDecoration(labelText: 'Age'),
+                keyboardType: TextInputType.number,
+              ),
+              if (error != null) ...[
+                const SizedBox(height: 8),
+                Text(error!, style: const TextStyle(color: Colors.red)),
+              ],
+              if (loading) ...[
+                const SizedBox(height: 16),
+                const CircularProgressIndicator(),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: loading ? null : () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: loading
+                  ? null
+                  : () async {
+                      final name = nameController.text.trim();
+                      final age = int.tryParse(ageController.text.trim());
+                      if (name.isEmpty || age == null) {
+                        setState(() {
+                          error = 'Please enter a valid name and age.';
+                        });
+                        return;
+                      }
+                      setState(() {
+                        error = null;
+                        loading = true;
+                      });
+                      try {
+                        await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(widget.user.uid)
+                            .collection('children')
+                            .add({
+                              'name': name,
+                              'age': age,
+                              'createdAt': FieldValue.serverTimestamp(),
+                            });
+                        if (Navigator.of(ctx).canPop()) {
+                          Navigator.of(ctx).pop();
+                        }
+                        await _refreshProfile();
+                      } catch (e) {
+                        setState(() {
+                          error = e.toString();
                           loading = false;
                         });
                       }
@@ -235,14 +319,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.all(24),
               child: ListView(
                 children: [
-                  Text('Email: \\${widget.user.email ?? ''}'),
+                  Text('Email: ${widget.user.email ?? ''}'),
                   const SizedBox(height: 12),
                   Text('Role: $role'),
                   const SizedBox(height: 24),
                   if (role == 'parent') ...[
                     ElevatedButton(
+                      onPressed: () => _addChildProfile(context),
+                      child: const Text('Add Child Profile'),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
                       onPressed: () => _addChildAccount(context),
-                      child: const Text('Add Child Account'),
+                      child: const Text('Add Child Account (email)'),
                     ),
                     const SizedBox(height: 24),
                     const Text(
@@ -252,7 +341,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                       stream: FirebaseFirestore.instance
                           .collection('users')
-                          .where('parent', isEqualTo: widget.user.uid)
+                          .doc(widget.user.uid)
+                          .collection('children')
+                          .orderBy('createdAt', descending: false)
                           .snapshots(),
                       builder: (context, childSnapshot) {
                         if (childSnapshot.connectionState ==
@@ -274,33 +365,179 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: children.length,
                           itemBuilder: (context, idx) {
-                            final child = children[idx].data();
+                            final childDoc = children[idx];
+                            final child = childDoc.data();
                             return ListTile(
                               leading: const Icon(Icons.child_care),
-                              title: Text(child['email'] ?? 'No email'),
-                              subtitle: Text(
-                                'Role: ${child['role'] ?? 'child'}',
+                              title: Text(child['name'] ?? 'No name'),
+                              subtitle: Text('Age: ${child['age'] ?? 'N/A'}'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    tooltip: 'Edit',
+                                    onPressed: () async {
+                                      final nameController =
+                                          TextEditingController(
+                                            text: child['name'] ?? '',
+                                          );
+                                      final ageController =
+                                          TextEditingController(
+                                            text:
+                                                child['age']?.toString() ?? '',
+                                          );
+                                      String? error;
+                                      bool loading = false;
+                                      await showDialog(
+                                        context: context,
+                                        builder: (ctx) => StatefulBuilder(
+                                          builder: (ctx, setState) => AlertDialog(
+                                            title: const Text(
+                                              'Edit Child Profile',
+                                            ),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                TextField(
+                                                  controller: nameController,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                        labelText: 'Child Name',
+                                                      ),
+                                                ),
+                                                TextField(
+                                                  controller: ageController,
+                                                  decoration:
+                                                      const InputDecoration(
+                                                        labelText: 'Age',
+                                                      ),
+                                                  keyboardType:
+                                                      TextInputType.number,
+                                                ),
+                                                if (error != null) ...[
+                                                  const SizedBox(height: 8),
+                                                  Text(
+                                                    error!,
+                                                    style: const TextStyle(
+                                                      color: Colors.red,
+                                                    ),
+                                                  ),
+                                                ],
+                                                if (loading) ...[
+                                                  const SizedBox(height: 16),
+                                                  const CircularProgressIndicator(),
+                                                ],
+                                              ],
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: loading
+                                                    ? null
+                                                    : () => Navigator.of(
+                                                        ctx,
+                                                      ).pop(),
+                                                child: const Text('Cancel'),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: loading
+                                                    ? null
+                                                    : () async {
+                                                        final newName =
+                                                            nameController.text
+                                                                .trim();
+                                                        final newAge =
+                                                            int.tryParse(
+                                                              ageController.text
+                                                                  .trim(),
+                                                            );
+                                                        if (newName.isEmpty ||
+                                                            newAge == null) {
+                                                          setState(() {
+                                                            error =
+                                                                'Please enter a valid name and age.';
+                                                          });
+                                                          return;
+                                                        }
+                                                        setState(() {
+                                                          error = null;
+                                                          loading = true;
+                                                        });
+                                                        try {
+                                                          await childDoc
+                                                              .reference
+                                                              .update({
+                                                                'name': newName,
+                                                                'age': newAge,
+                                                              });
+                                                          if (Navigator.of(
+                                                            ctx,
+                                                          ).canPop()) {
+                                                            Navigator.of(
+                                                              ctx,
+                                                            ).pop();
+                                                          }
+                                                          await _refreshProfile();
+                                                        } catch (e) {
+                                                          setState(() {
+                                                            error = e
+                                                                .toString();
+                                                            loading = false;
+                                                          });
+                                                        }
+                                                      },
+                                                child: const Text('Save'),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete),
+                                    tooltip: 'Delete',
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text(
+                                            'Delete Child Profile',
+                                          ),
+                                          content: Text(
+                                            'Are you sure you want to delete \\"${child['name']}\\"?',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.of(ctx).pop(false),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () =>
+                                                  Navigator.of(ctx).pop(true),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Theme.of(
+                                                  context,
+                                                ).colorScheme.error,
+                                              ),
+                                              child: const Text('Delete'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      if (confirm == true) {
+                                        await childDoc.reference.delete();
+                                        await _refreshProfile();
+                                      }
+                                    },
+                                  ),
+                                ],
                               ),
                             );
                           },
                         );
                       },
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final newRole = role == 'parent' ? 'child' : 'parent';
-                        await FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(widget.user.uid)
-                            .set({
-                              'email': widget.user.email,
-                              'role': newRole,
-                            }, SetOptions(merge: true));
-                        await _refreshProfile();
-                      },
-                      child: Text(
-                        'Switch to ${role == 'parent' ? 'child' : 'parent'} role',
-                      ),
                     ),
                   ],
                 ],
@@ -310,7 +547,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         if (_signingOut)
           Container(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black54,
             child: const Center(child: CircularProgressIndicator()),
           ),
       ],

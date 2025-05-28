@@ -1,8 +1,17 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'family_members_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final VoidCallback? onOpenProfile;
-  const HomeScreen({super.key, this.onOpenProfile});
+  final User user;
+  const HomeScreen({super.key, required this.user, this.onOpenProfile});
+
+  void _openFamilyMembers(BuildContext context, User user) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => FamilyMembersScreen(user: user)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +29,12 @@ class HomeScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          _SectionStub(title: 'Family Members', icon: Icons.group),
+          GestureDetector(
+            onTap: () {
+              _openFamilyMembers(context, user);
+            },
+            child: _SectionStub(title: 'Family Members', icon: Icons.group),
+          ),
           const SizedBox(height: 24),
           _SectionStub(title: 'Rules', icon: Icons.rule),
           const SizedBox(height: 24),

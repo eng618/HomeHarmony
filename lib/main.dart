@@ -100,6 +100,7 @@ class _MyAppState extends State<MyApp> {
           }
           if (snapshot.hasData) {
             return HomeScreen(
+              user: snapshot.data!,
               onOpenProfile: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(

@@ -2,6 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'family_members_screen.dart';
 import 'rules_screen.dart';
+import 'consequences_screen.dart';
+import 'rewards_screen.dart';
+import 'screentime_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final VoidCallback? onOpenProfile;
@@ -48,8 +51,8 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 24),
           GestureDetector(
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Rewards feature coming soon!')),
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => RewardsScreen(user: user)),
               );
             },
             child: _SectionStub(title: 'Rewards', icon: Icons.emoji_events),
@@ -57,13 +60,25 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 24),
           GestureDetector(
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Consequences feature coming soon!'),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ConsequencesScreen(user: user),
                 ),
               );
             },
             child: _SectionStub(title: 'Consequences', icon: Icons.warning),
+          ),
+          const SizedBox(height: 24),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => ScreentimeScreen(user: user)),
+              );
+            },
+            child: _SectionStub(
+              title: 'Screentime Tracking',
+              icon: Icons.timer,
+            ),
           ),
           const SizedBox(height: 24),
           GestureDetector(

@@ -43,10 +43,10 @@ tasks:
     cmds:
       - flutter test
 
-  format:
-    desc: Format the Flutter code
-    cmds:
-      - flutter format .
+  # format:
+  #   desc: Format the Flutter code
+  #   cmds:
+  #     - flutter format .
 
   lint:
     desc: Run Flutter linting
@@ -97,3 +97,17 @@ tasks:
     desc: Deploy all Firebase services
     cmds:
       - firebase deploy
+
+  validate:
+    desc: Validate code quality, linting, tests, and build
+    cmds:
+      - task: analyze
+      # - task: format
+      - task: lint
+      - task: test
+      - task: build
+
+  generate_icons:
+    desc: Generate app icons and favicon for all platforms using flutter_launcher_icons
+    cmds:
+      - dart run flutter_launcher_icons

@@ -1,5 +1,8 @@
 # Home Harmony
 
+[![General CI](https://github.com/eng618/HomeHarmony/actions/workflows/ci.yml/badge.svg)](https://github.com/eng618/HomeHarmony/actions/workflows/ci.yml)
+[![Deploy to Firebase Hosting](https://github.com/eng618/HomeHarmony/actions/workflows/firebase-hosting-merge.yml/badge.svg)](https://github.com/eng618/HomeHarmony/actions/workflows/firebase-hosting-merge.yml)
+
 A cross-platform Flutter application for families to manage rules, rewards, and consequences for children.
 
 ## Architecture Overview

@@ -74,6 +74,6 @@ Project Maintainers: Eric N. Garcia (<eng618@garciaericn.com>)
 
 See [CHANGELOG.md](CHANGELOG.md) for updates and release notes.
 
----
+## Star History
 
-For more details, see the `.github/copilot-instructions.md` file.
+[![Star History Chart](https://api.star-history.com/svg?repos=eng618/HomeHarmony&type=Date)](https://www.star-history.com/#eng618/HomeHarmony&Date)

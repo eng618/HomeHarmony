@@ -4,7 +4,8 @@ import 'family_members_screen.dart';
 import 'rules_screen.dart';
 import 'consequences_screen.dart';
 import 'rewards_screen.dart';
-import 'screentime_screen.dart';
+import 'screen_time_screen.dart';
+import 'activity_history_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final VoidCallback? onOpenProfile;
@@ -72,20 +73,22 @@ class HomeScreen extends StatelessWidget {
           GestureDetector(
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => ScreentimeScreen(user: user)),
+                MaterialPageRoute(
+                  builder: (_) => const ScreenTimeScreen(),
+                ),
               );
             },
             child: _SectionStub(
-              title: 'Screentime Tracking',
+              title: 'Screen Time Tracking',
               icon: Icons.timer,
             ),
           ),
           const SizedBox(height: 24),
           GestureDetector(
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Activity Feed feature coming soon!'),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const ActivityHistoryScreen(),
                 ),
               );
             },

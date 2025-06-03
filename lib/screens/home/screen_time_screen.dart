@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:home_harmony/views/screen_time_view.dart';
 
+/// ScreenTimeScreen is a top-level route that hosts the ScreenTimeView.
+/// It passes the required familyId and childId to the view.
 class ScreenTimeScreen extends StatelessWidget {
-  const ScreenTimeScreen({super.key});
+  /// The family ID for Firestore queries.
+  final String familyId;
+
+  /// The child ID for Firestore queries.
+  final String childId;
+
+  /// Creates a [ScreenTimeScreen] for the given family and child.
+  const ScreenTimeScreen({
+    super.key,
+    required this.familyId,
+    required this.childId,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Screen Time Tracking')),
-      body: const Center(
-        child: Text(
-          'Screen Time Tracking feature coming soon!',
-          style: TextStyle(fontSize: 20),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
+    return ScreenTimeView(familyId: familyId, childId: childId);
   }
 }

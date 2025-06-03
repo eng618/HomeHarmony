@@ -72,9 +72,13 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 24),
           GestureDetector(
             onTap: () {
+              // TODO: Replace with actual familyId and childId from user/family context
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => const ScreenTimeScreen(),
+                  builder: (_) => ScreenTimeScreen(
+                    familyId: user.uid, // Example: use user.uid as familyId
+                    childId: user.uid, // Example: use user.uid as childId
+                  ),
                 ),
               );
             },

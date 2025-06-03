@@ -27,7 +27,7 @@ lib/
 Use the following guidelines when writing code:
 
 - Use Dart's `async` and `await` for asynchronous operations.
-- Implement state management using Provider or Riverpod.
+- Implement state management using Riverpod.
 - Use `http` package for RESTful API calls.
 - Follow Material Design 3 guidelines for UI components.
 - Use `flutter_lints` for linting and code quality.

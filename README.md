@@ -77,3 +77,47 @@ See [CHANGELOG.md](CHANGELOG.md) for updates and release notes.
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=eng618/HomeHarmony&type=Date)](https://www.star-history.com/#eng618/HomeHarmony&Date)
+
+## MVP Implementation Roadmap
+
+The following steps outline the remaining work to reach the MVP (Minimum Viable Product) for Home Harmony. This list will be updated as features are completed.
+
+### Next Steps to MVP
+
+- [ ] **Screen Time Integration**
+  - [ ] Link family members (children) to screen time buckets and timers
+  - [ ] Parent can view and adjust each child's screen time
+  - [ ] Child can view their own screen time and session history
+  - [ ] Real-time updates for active timers and session logging
+
+- [ ] **Rules Management**
+  - [ ] CRUD for family rules (parent)
+  - [ ] Assign rules to children
+  - [ ] Children can view their assigned rules
+
+- [ ] **Rewards & Chores**
+  - [ ] CRUD for chores and rewards (parent)
+  - [ ] Assign chores to children
+  - [ ] Children can mark chores as complete
+  - [ ] Parent can approve/reject completions and award screen time
+
+- [ ] **Consequences**
+  - [ ] CRUD for consequences (parent)
+  - [ ] Assign consequences to children
+  - [ ] Deduct screen time for applied consequences
+
+- [ ] **Activity History**
+  - [ ] Log all major actions (rule/chores/consequences/screen time)
+  - [ ] Family and child-specific activity feeds
+
+- [ ] **Basic Onboarding & Navigation**
+  - [ ] Smooth navigation between authentication, home, and feature screens
+  - [ ] Onboarding for new families/parents
+
+- [ ] **Testing & Polish**
+  - [ ] Unit/widget tests for all major features
+  - [ ] UI/UX polish and accessibility review
+
+---
+
+**We will update this section as features are completed. When all boxes are checked, the app is ready for MVP launch!**

@@ -5,6 +5,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'views/auth_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'utils/auth_providers.dart';
+import 'screens/home/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,21 +36,33 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(authStateProvider);
     return MaterialApp(
       title: 'Home Harmony',
       theme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: const Color(0xFF2A9D8F),
       ),
-      home: const AuthScreen(), // Show new modular auth screen by default
+      home: userAsync.when(
+        data: (user) {
+          if (user != null) {
+            return HomeScreen(user: user);
+          } else {
+            return const AuthScreen();
+          }
+        },
+        loading: () =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
+        error: (e, _) => Scaffold(body: Center(child: Text('Error: $e'))),
+      ),
     );
   }
 }

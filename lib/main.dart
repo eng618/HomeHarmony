@@ -5,11 +5,7 @@ import 'env_web.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'screens/auth/auth_screen.dart';
-import 'screens/profile/profile_screen.dart';
-import 'screens/profile/settings_screen.dart';
-import 'screens/home/home_screen.dart';
-import 'utils/app_theme.dart';
+import 'views/auth_screen.dart';
 import 'package:http/http.dart' as http;
 
 void main() async {
@@ -42,89 +38,18 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.system;
-
-  void _setThemeMode(ThemeMode mode) {
-    setState(() {
-      _themeMode = mode;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Home Harmony',
-      theme: buildAppTheme(),
-      darkTheme: buildAppTheme(darkMode: true),
-      themeMode: _themeMode,
-      builder: (context, child) {
-        ErrorWidget.builder = (FlutterErrorDetails details) {
-          return Scaffold(
-            body: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error, color: Colors.red, size: 64),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'An error occurred',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      details.exceptionAsString(),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        };
-        return child!;
-      },
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasData) {
-            return HomeScreen(
-              user: snapshot.data!,
-              onOpenProfile: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => ProfileScreen(
-                      user: snapshot.data!,
-                      onOpenSettings: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => SettingsScreen(
-                              currentThemeMode: _themeMode,
-                              onThemeModeChanged: _setThemeMode,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-            );
-          }
-          return const AuthScreen();
-        },
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: const Color(0xFF2A9D8F),
       ),
+      home: const AuthScreen(), // Show auth screen by default
     );
   }
 }

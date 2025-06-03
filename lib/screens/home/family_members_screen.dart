@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:home_harmony/screens/home/screen_time_screen.dart';
 import '../../views/family_members_view.dart';
 import '../../models/child_profile.dart';
 import '../../services/family_service.dart';
 import '../../widgets/child_profile_form.dart';
+import '../../services/auth_service.dart';
+import '../../widgets/child_account_form.dart';
 
 class FamilyMembersScreen extends StatefulWidget {
   final User user;
@@ -39,81 +40,21 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
   }
 
   Future<void> _addChildAccount(BuildContext context) async {
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-    String? error;
-    bool loading = false;
     await showDialog(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setState) => AlertDialog(
-          title: const Text('Add Child Account'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: 'Child Email'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-              ),
-              if (error != null) ...[
-                const SizedBox(height: 8),
-                Text(error!, style: const TextStyle(color: Colors.red)),
-              ],
-              if (loading) ...[
-                const SizedBox(height: 16),
-                const CircularProgressIndicator(),
-              ],
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: loading ? null : () => Navigator.of(ctx).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: loading
-                  ? null
-                  : () async {
-                      setState(() {
-                        error = null;
-                        loading = true;
-                      });
-                      try {
-                        final cred = await FirebaseAuth.instance
-                            .createUserWithEmailAndPassword(
-                              email: emailController.text.trim(),
-                              password: passwordController.text.trim(),
-                            );
-                        await FirebaseFirestore.instance
-                            .collection('families')
-                            .doc(cred.user!.uid)
-                            .set({
-                              'email': cred.user!.email,
-                              'role': 'child',
-                              'parent': widget.user.uid,
-                            });
-                        // Don't use BuildContext after an async gap
-                        if (!ctx.mounted) return;
-                        if (Navigator.of(ctx).canPop()) {
-                          Navigator.of(ctx).pop();
-                        }
-                        setState(() {});
-                      } on FirebaseAuthException catch (e) {
-                        setState(() {
-                          error = e.message;
-                          loading = false;
-                        });
-                      }
-                    },
-              child: const Text('Add'),
-            ),
-          ],
+      builder: (ctx) => AlertDialog(
+        content: ChildAccountForm(
+          onSubmit: (name, age, email, password) async {
+            final err = await AuthService.createChildAccount(
+              parentUid: widget.user.uid,
+              parentEmail: widget.user.email ?? '',
+              childName: name,
+              childAge: age,
+              email: email,
+              password: password,
+            );
+            return err;
+          },
         ),
       ),
     );

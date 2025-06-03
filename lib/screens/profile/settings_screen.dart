@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/auth_service.dart';
+import '../../utils/auth_providers.dart';
 
-class SettingsScreen extends StatelessWidget {
-  final ThemeMode currentThemeMode;
-  final ValueChanged<ThemeMode> onThemeModeChanged;
-  const SettingsScreen({
-    super.key,
-    required this.currentThemeMode,
-    required this.onThemeModeChanged,
-  });
+class SettingsScreen extends ConsumerWidget {
+  const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
@@ -23,25 +20,28 @@ class SettingsScreen extends StatelessWidget {
           RadioListTile<ThemeMode>(
             title: const Text('Light'),
             value: ThemeMode.light,
-            groupValue: currentThemeMode,
+            groupValue: themeMode,
             onChanged: (mode) {
-              if (mode != null) onThemeModeChanged(mode);
+              if (mode != null)
+                ref.read(themeModeProvider.notifier).state = mode;
             },
           ),
           RadioListTile<ThemeMode>(
             title: const Text('Dark'),
             value: ThemeMode.dark,
-            groupValue: currentThemeMode,
+            groupValue: themeMode,
             onChanged: (mode) {
-              if (mode != null) onThemeModeChanged(mode);
+              if (mode != null)
+                ref.read(themeModeProvider.notifier).state = mode;
             },
           ),
           RadioListTile<ThemeMode>(
             title: const Text('System Default'),
             value: ThemeMode.system,
-            groupValue: currentThemeMode,
+            groupValue: themeMode,
             onChanged: (mode) {
-              if (mode != null) onThemeModeChanged(mode);
+              if (mode != null)
+                ref.read(themeModeProvider.notifier).state = mode;
             },
           ),
           const SizedBox(height: 32),

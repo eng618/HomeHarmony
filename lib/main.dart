@@ -45,12 +45,15 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(authStateProvider);
+    final themeMode = ref.watch(themeModeProvider);
     return MaterialApp(
       title: 'Home Harmony',
       theme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: const Color(0xFF2A9D8F),
       ),
+      darkTheme: ThemeData.dark(useMaterial3: true),
+      themeMode: themeMode,
       home: userAsync.when(
         data: (user) {
           if (user != null) {

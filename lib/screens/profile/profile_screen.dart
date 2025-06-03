@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'settings_screen.dart';
 
 /// Widget to display error state for the profile screen.
 class ProfileErrorView extends StatelessWidget {
@@ -186,7 +187,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return ProfileInfoView(
       user: widget.user,
       data: _cachedProfile?.data(),
-      onOpenSettings: widget.onOpenSettings,
+      onOpenSettings: () {
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
+      },
       signingOut: _signingOut,
       onSignOut: () async {
         setState(() => _signingOut = true);

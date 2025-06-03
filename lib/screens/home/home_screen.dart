@@ -6,6 +6,7 @@ import 'consequences_screen.dart';
 import 'rewards_screen.dart';
 import 'screen_time_screen.dart';
 import 'activity_history_screen.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final VoidCallback? onOpenProfile;
@@ -18,6 +19,12 @@ class HomeScreen extends StatelessWidget {
     ).push(MaterialPageRoute(builder: (_) => FamilyMembersScreen(user: user)));
   }
 
+  void _openProfile(BuildContext context, User user) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => ProfileScreen(user: user)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +34,7 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.account_circle),
             tooltip: 'Profile',
-            onPressed: onOpenProfile,
+            onPressed: () => _openProfile(context, user),
           ),
         ],
       ),

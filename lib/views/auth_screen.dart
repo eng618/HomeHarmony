@@ -18,7 +18,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return showSignIn
-        ? SignInView(key: const ValueKey('signIn'))
-        : SignUpView(key: const ValueKey('signUp'));
+        ? SignInView(key: const ValueKey('signIn'), onSwitch: toggle)
+        : SignUpView(key: const ValueKey('signUp'), onSwitch: toggle);
   }
 }

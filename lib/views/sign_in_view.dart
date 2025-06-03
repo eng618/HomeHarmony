@@ -4,7 +4,8 @@ import '../services/auth_service.dart';
 
 /// View for parent sign in.
 class SignInView extends StatelessWidget {
-  const SignInView({super.key});
+  final VoidCallback? onSwitch;
+  const SignInView({super.key, this.onSwitch});
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +14,21 @@ class SignInView extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: AuthForm(
-            title: 'Sign In',
-            actionText: 'Sign In',
-            onSubmit: (email, password) => AuthService.signIn(email, password),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AuthForm(
+                title: 'Sign In',
+                actionText: 'Sign In',
+                onSubmit: (email, password) =>
+                    AuthService.signIn(email, password),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: onSwitch,
+                child: const Text("Don't have an account? Create one"),
+              ),
+            ],
           ),
         ),
       ),

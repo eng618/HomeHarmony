@@ -44,6 +44,107 @@ class SettingsScreen extends ConsumerWidget {
                 ref.read(themeModeProvider.notifier).state = mode;
             },
           ),
+          // --- Notification Preferences (Stub) ---
+          SwitchListTile(
+            title: const Text('Enable Notifications'),
+            value: false, // TODO: Wire up with Riverpod provider
+            onChanged: (val) {
+              // TODO: Implement notification toggle logic
+            },
+          ),
+          // --- Account Management (Stub) ---
+          ListTile(
+            leading: const Icon(Icons.email),
+            title: const Text('Change Email'),
+            onTap: () {
+              // TODO: Implement change email flow
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Change Email not implemented.')),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.lock),
+            title: const Text('Change Password'),
+            onTap: () {
+              // TODO: Implement change password flow
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Change Password not implemented.'),
+                ),
+              );
+            },
+          ),
+          // --- Privacy & Security (Stub) ---
+          SwitchListTile(
+            title: const Text('Enable Biometric Login'),
+            value: false, // TODO: Wire up with Riverpod provider
+            onChanged: (val) {
+              // TODO: Implement biometric toggle logic
+            },
+          ),
+          // --- About / App Info (Stub) ---
+          const Divider(),
+          ListTile(
+            leading: Icon(Icons.info_outline, color: Colors.grey[700]),
+            title: Text('About Home Harmony'),
+            subtitle: Text('Version 1.0.0 (Build 1)'),
+            onTap: () {
+              // TODO: Show about dialog or page
+              showAboutDialog(
+                context: context,
+                applicationName: 'Home Harmony',
+                applicationVersion: '1.0.0',
+                applicationLegalese: '© 2025 Home Harmony Team',
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.privacy_tip, color: Colors.grey[700]),
+            title: const Text('Privacy Policy'),
+            onTap: () {
+              // TODO: Open privacy policy link
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Privacy Policy not implemented.'),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.gavel, color: Colors.grey[700]),
+            title: const Text('Terms of Service'),
+            onTap: () {
+              // TODO: Open terms of service link
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Terms of Service not implemented.'),
+                ),
+              );
+            },
+          ),
+          // --- Feedback & Support (Stub) ---
+          const Divider(),
+          ListTile(
+            leading: Icon(Icons.feedback, color: Colors.blue[700]),
+            title: const Text('Send Feedback'),
+            onTap: () {
+              // TODO: Implement feedback form or email intent
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Feedback not implemented.')),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.support_agent, color: Colors.blue[700]),
+            title: const Text('Contact Support'),
+            onTap: () {
+              // TODO: Implement support contact
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Support not implemented.')),
+              );
+            },
+          ),
           const SizedBox(height: 32),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),

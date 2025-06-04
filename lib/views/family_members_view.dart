@@ -53,7 +53,7 @@ class FamilyMembersView extends StatelessWidget {
                   .collection('families')
                   .doc(familyId)
                   .collection('children')
-                  .orderBy('createdAt', descending: false)
+                  .orderBy('created_at', descending: false)
                   .snapshots(),
               builder: (context, childSnapshot) {
                 if (childSnapshot.connectionState == ConnectionState.waiting) {
@@ -79,11 +79,33 @@ class FamilyMembersView extends StatelessWidget {
                           child.profilePicture != null &&
                               child.profilePicture!.isNotEmpty
                           ? CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                child.profilePicture!,
+                              backgroundColor: Colors.grey[200],
+                              child: ClipOval(
+                                child: FadeInImage.assetNetwork(
+                                  placeholder:
+                                      'assets/logo.png', // Use your app logo or a default avatar asset
+                                  image: child.profilePicture!,
+                                  fit: BoxFit.cover,
+                                  width: 40,
+                                  height: 40,
+                                  imageErrorBuilder:
+                                      (context, error, stackTrace) {
+                                        return const Icon(
+                                          Icons.child_care,
+                                          size: 32,
+                                          color: Colors.grey,
+                                        );
+                                      },
+                                ),
                               ),
                             )
-                          : const Icon(Icons.child_care),
+                          : const CircleAvatar(
+                              child: Icon(
+                                Icons.child_care,
+                                size: 32,
+                                color: Colors.grey,
+                              ),
+                            ),
                       title: Text(child.name),
                       subtitle: Text(
                         'Age: ${child.age}\nType: ${child.profileType}',
@@ -94,6 +116,15 @@ class FamilyMembersView extends StatelessWidget {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          IconButton(
+                            icon: const Icon(Icons.timer),
+                            tooltip: 'Screen Time',
+                            onPressed: () {
+                              if (onSelectChild != null) {
+                                onSelectChild!(child.id, child.name);
+                              }
+                            },
+                          ),
                           IconButton(
                             icon: const Icon(Icons.edit),
                             tooltip: 'Edit',

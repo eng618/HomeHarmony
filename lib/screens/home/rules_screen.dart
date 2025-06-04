@@ -209,7 +209,7 @@ class _RulesScreenState extends State<RulesScreen> {
                     .collection('users')
                     .doc(widget.user.uid)
                     .collection('rules')
-                    .orderBy('createdAt', descending: false)
+                    .orderBy('created_at', descending: false)
                     .snapshots(),
                 builder: (context, ruleSnapshot) {
                   if (ruleSnapshot.connectionState == ConnectionState.waiting) {

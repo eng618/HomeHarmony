@@ -76,7 +76,7 @@ class FamilyService {
         .collection('families')
         .doc(familyId)
         .collection('children')
-        .orderBy('createdAt', descending: false)
+        .orderBy('created_at', descending: false)
         .snapshots()
         .map(
           (snapshot) => snapshot.docs

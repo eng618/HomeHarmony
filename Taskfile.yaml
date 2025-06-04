@@ -18,6 +18,13 @@ tasks:
     cmds:
       - flutter run -d chrome
 
+  serve:clean:
+    desc: Stop the Flutter development server
+    cmds:
+      - task: clean
+      - task: get
+      - task: serve
+
   clean:
     desc: Clean the Flutter build cache
     cmds:

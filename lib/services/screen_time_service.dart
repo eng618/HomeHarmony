@@ -279,7 +279,7 @@ class ScreenTimeService {
       currentMinutes = (data['total_minutes'] ?? 0) as int;
     }
     await bucketRef.set({
-      'total_minutes': currentMinutes + minutes,
+      'total_minutes': (currentMinutes + minutes).clamp(0, 99999),
       'last_updated': Timestamp.now(),
     }, SetOptions(merge: true));
     // Optionally, log the reward event in activity_log or sessions

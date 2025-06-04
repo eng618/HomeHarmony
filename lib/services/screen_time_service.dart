@@ -258,4 +258,32 @@ class ScreenTimeService {
       });
     }
   }
+
+  /// Adds a reward (screen time minutes) to a child's bucket.
+  Future<void> addRewardToBucket({
+    required String familyId,
+    required String childId,
+    required int minutes,
+    String? reason,
+  }) async {
+    final bucketRef = _firestore
+        .collection('families')
+        .doc(familyId)
+        .collection('children')
+        .doc(childId)
+        .collection('screen_time')
+        .doc('bucket');
+    final bucketDoc = await bucketRef.get();
+    int currentMinutes = 0;
+    if (bucketDoc.exists) {
+      final data = bucketDoc.data()!;
+      currentMinutes = (data['total_minutes'] ?? 0) as int;
+    }
+    await bucketRef.set({
+      'total_minutes': currentMinutes + minutes,
+      'last_updated': Timestamp.now(),
+    }, SetOptions(merge: true));
+    // Optionally, log the reward event in activity_log or sessions
+    // ...
+  }
 }

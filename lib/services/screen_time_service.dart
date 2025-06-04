@@ -190,7 +190,6 @@ class ScreenTimeService {
     final data = doc.data()!;
     final pausedAt = (data['paused_at'] as Timestamp?)?.toDate();
     final startTime = (data['start_time'] as Timestamp).toDate();
-    final durationMinutes = data['duration_minutes'] as int;
     if (pausedAt == null) return;
     final now = DateTime.now();
     final pausedDuration = now.difference(pausedAt);

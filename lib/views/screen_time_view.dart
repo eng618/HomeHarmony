@@ -44,6 +44,8 @@ class ScreenTimeView extends ConsumerWidget {
               lastUpdated: Timestamp.now(),
             ),
           );
+          // Check if the widget is still in the tree (mounted) before using BuildContext.
+          if (!context.mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Screen time bucket created!')),
           );

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/family_service.dart';
 import '../models/child_profile.dart';
-import '../models/screen_time_params.dart';
-import '../utils/screen_time_providers.dart';
 import 'screen_time_view.dart';
 
 class ScreenTimeSelectorView extends ConsumerStatefulWidget {
@@ -44,9 +42,6 @@ class _ScreenTimeSelectorViewState
         }
         // If no child is selected, default to the first child
         selectedChildId ??= children.first.id;
-        final selectedChild = children.firstWhere(
-          (c) => c.id == selectedChildId,
-        );
         return Scaffold(
           appBar: AppBar(title: const Text('Screen Time')),
           body: Column(

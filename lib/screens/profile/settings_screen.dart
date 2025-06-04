@@ -22,8 +22,9 @@ class SettingsScreen extends ConsumerWidget {
             value: ThemeMode.light,
             groupValue: themeMode,
             onChanged: (mode) {
-              if (mode != null)
+              if (mode != null) {
                 ref.read(themeModeProvider.notifier).setTheme(mode);
+              }
             },
           ),
           RadioListTile<ThemeMode>(
@@ -31,8 +32,9 @@ class SettingsScreen extends ConsumerWidget {
             value: ThemeMode.dark,
             groupValue: themeMode,
             onChanged: (mode) {
-              if (mode != null)
+              if (mode != null) {
                 ref.read(themeModeProvider.notifier).setTheme(mode);
+              }
             },
           ),
           RadioListTile<ThemeMode>(
@@ -40,8 +42,9 @@ class SettingsScreen extends ConsumerWidget {
             value: ThemeMode.system,
             groupValue: themeMode,
             onChanged: (mode) {
-              if (mode != null)
+              if (mode != null) {
                 ref.read(themeModeProvider.notifier).setTheme(mode);
+              }
             },
           ),
           // --- Notification Preferences (Stub) ---

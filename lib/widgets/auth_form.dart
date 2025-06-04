@@ -38,7 +38,7 @@ class _AuthFormState extends ConsumerState<AuthForm> {
         }
       },
       loading: () {},
-      error: (_, __) {},
+      error: (error, stackTrace) {},
     );
     return Column(
       mainAxisSize: MainAxisSize.min,

@@ -84,11 +84,11 @@ The following steps outline the remaining work to reach the MVP (Minimum Viable 
 
 ### Next Steps to MVP
 
-- [ ] **Screen Time Integration**
-  - [ ] Link family members (children) to screen time buckets and timers
-  - [ ] Parent can view and adjust each child's screen time
-  - [ ] Child can view their own screen time and session history
-  - [ ] Real-time updates for active timers and session logging
+- [x] **Screen Time Integration**
+  - [x] Link family members (children) to screen time buckets and timers
+  - [x] Parent can view and adjust each child's screen time
+  - [x] Child can view their own screen time and session history
+  - [x] Real-time updates for active timers and session logging
 
 - [ ] **Rules Management**
   - [ ] CRUD for family rules (parent)
@@ -100,6 +100,7 @@ The following steps outline the remaining work to reach the MVP (Minimum Viable 
   - [ ] Assign chores to children
   - [ ] Children can mark chores as complete
   - [ ] Parent can approve/reject completions and award screen time
+  - [ ] Parent can add screen time to child's bucket as a reward
 
 - [ ] **Consequences**
   - [ ] CRUD for consequences (parent)
@@ -110,9 +111,9 @@ The following steps outline the remaining work to reach the MVP (Minimum Viable 
   - [ ] Log all major actions (rule/chores/consequences/screen time)
   - [ ] Family and child-specific activity feeds
 
-- [ ] **Basic Onboarding & Navigation**
-  - [ ] Smooth navigation between authentication, home, and feature screens
-  - [ ] Onboarding for new families/parents
+- [x] **Basic Onboarding & Navigation**
+  - [x] Smooth navigation between authentication, home, and feature screens
+  - [x] Onboarding for new families/parents
 
 - [ ] **Testing & Polish**
   - [ ] Unit/widget tests for all major features

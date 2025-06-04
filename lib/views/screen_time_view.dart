@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/scheduler.dart';
 import '../utils/screen_time_providers.dart';
 import '../models/screen_time_models.dart';
 import '../models/screen_time_params.dart';
@@ -94,40 +95,93 @@ class ScreenTimeView extends ConsumerWidget {
             const SizedBox(height: 16),
             // Active Timer
             timerAsync.when(
-              data: (timer) => Card(
-                child: ListTile(
-                  leading: Icon(
-                    timer?.isPaused == true ? Icons.pause : Icons.play_arrow,
-                    color: Color(0xFFF48C06),
-                  ),
-                  title: const Text('Active Timer'),
-                  subtitle: timer != null
-                      ? Text(
-                          'Started: ${timer.startTime.toDate()}'
-                          '\nDuration: ${timer.durationMinutes} min'
-                          '\nPaused: ${timer.isPaused ? 'Yes' : 'No'}',
-                        )
-                      : const Text('No active timer.'),
-                  trailing: timer == null
-                      ? TextButton(
-                          onPressed: () async {
-                            final service = ref.read(screenTimeServiceProvider);
-                            await service.updateActiveTimer(
-                              familyId: familyId,
-                              childId: childId,
-                              timer: ActiveTimer(
-                                startTime: Timestamp.now(),
-                                durationMinutes: 30,
-                                isPaused: false,
-                                pausedAt: null,
+              data: (timer) {
+                final canStartTimer =
+                    (bucketAsync.valueOrNull?.totalMinutes ?? 0) >= 1;
+                return Card(
+                  child: ListTile(
+                    leading: Icon(
+                      timer?.isPaused == true ? Icons.pause : Icons.play_arrow,
+                      color: Color(0xFFF48C06),
+                    ),
+                    title: const Text('Active Timer'),
+                    subtitle: timer != null
+                        ? _ActiveTimerCountdown(timer: timer)
+                        : !canStartTimer
+                        ? const Text(
+                            'Not enough screen time available to start a timer.',
+                          )
+                        : const Text('No active timer.'),
+                    trailing: timer == null
+                        ? TextButton(
+                            onPressed: canStartTimer
+                                ? () async {
+                                    final service = ref.read(
+                                      screenTimeServiceProvider,
+                                    );
+                                    await service.updateActiveTimer(
+                                      familyId: familyId,
+                                      childId: childId,
+                                      timer: ActiveTimer(
+                                        startTime: Timestamp.now(),
+                                        durationMinutes: 30,
+                                        isPaused: false,
+                                        pausedAt: null,
+                                      ),
+                                    );
+                                  }
+                                : null,
+                            child: const Text('Start Timer'),
+                          )
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (timer.isPaused)
+                                IconButton(
+                                  icon: const Icon(Icons.play_arrow),
+                                  tooltip: 'Resume',
+                                  onPressed: () async {
+                                    final service = ref.read(
+                                      screenTimeServiceProvider,
+                                    );
+                                    await service.resumeActiveTimer(
+                                      familyId: familyId,
+                                      childId: childId,
+                                    );
+                                  },
+                                )
+                              else
+                                IconButton(
+                                  icon: const Icon(Icons.pause),
+                                  tooltip: 'Pause',
+                                  onPressed: () async {
+                                    final service = ref.read(
+                                      screenTimeServiceProvider,
+                                    );
+                                    await service.pauseActiveTimer(
+                                      familyId: familyId,
+                                      childId: childId,
+                                    );
+                                  },
+                                ),
+                              IconButton(
+                                icon: const Icon(Icons.stop),
+                                tooltip: 'Stop',
+                                onPressed: () async {
+                                  final service = ref.read(
+                                    screenTimeServiceProvider,
+                                  );
+                                  await service.completeActiveTimer(
+                                    familyId: familyId,
+                                    childId: childId,
+                                  );
+                                },
                               ),
-                            );
-                          },
-                          child: const Text('Start Timer'),
-                        )
-                      : null,
-                ),
-              ),
+                            ],
+                          ),
+                  ),
+                );
+              },
               loading: () => Column(
                 children: [
                   const Center(child: CircularProgressIndicator()),
@@ -182,6 +236,83 @@ class ScreenTimeView extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ActiveTimerCountdown extends StatefulWidget {
+  final ActiveTimer timer;
+  const _ActiveTimerCountdown({required this.timer});
+
+  @override
+  State<_ActiveTimerCountdown> createState() => _ActiveTimerCountdownState();
+}
+
+class _ActiveTimerCountdownState extends State<_ActiveTimerCountdown> {
+  late Duration remaining;
+  late DateTime endTime;
+  late bool isPaused;
+  late DateTime? pausedAt;
+  late int durationMinutes;
+  late DateTime startTime;
+  late Ticker _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    durationMinutes = widget.timer.durationMinutes;
+    startTime = widget.timer.startTime.toDate();
+    isPaused = widget.timer.isPaused;
+    pausedAt = widget.timer.pausedAt?.toDate();
+    endTime = startTime.add(Duration(minutes: durationMinutes));
+    remaining = _calcRemaining();
+    _ticker = Ticker(_onTick)..start();
+  }
+
+  Duration _calcRemaining() {
+    if (isPaused && pausedAt != null) {
+      // When paused, freeze the countdown at the moment of pause
+      return endTime.difference(pausedAt!);
+    } else {
+      return endTime.difference(DateTime.now());
+    }
+  }
+
+  void _onTick(Duration _) {
+    if (!mounted) return;
+    if (isPaused) return; // Do not update countdown if paused
+    setState(() {
+      remaining = _calcRemaining();
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _ActiveTimerCountdown oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update state if timer is paused/resumed
+    isPaused = widget.timer.isPaused;
+    pausedAt = widget.timer.pausedAt?.toDate();
+    durationMinutes = widget.timer.durationMinutes;
+    startTime = widget.timer.startTime.toDate();
+    endTime = startTime.add(Duration(minutes: durationMinutes));
+    remaining = _calcRemaining();
+  }
+
+  @override
+  void dispose() {
+    _ticker.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (remaining.isNegative) {
+      return const Text('Timer complete!');
+    }
+    final minutes = remaining.inMinutes;
+    final seconds = remaining.inSeconds % 60;
+    return Text(
+      'Time left: ${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
     );
   }
 }

@@ -157,4 +157,105 @@ class ScreenTimeService {
         .snapshots()
         .map((doc) => doc.exists ? ActiveTimer.fromJson(doc.data()!) : null);
   }
+
+  /// Pauses the active timer for a child.
+  Future<void> pauseActiveTimer({
+    required String familyId,
+    required String childId,
+  }) async {
+    final docRef = _firestore
+        .collection('families')
+        .doc(familyId)
+        .collection('children')
+        .doc(childId)
+        .collection('screen_time')
+        .doc('active_timer');
+    await docRef.update({'is_paused': true, 'paused_at': Timestamp.now()});
+  }
+
+  /// Resumes the active timer for a child.
+  Future<void> resumeActiveTimer({
+    required String familyId,
+    required String childId,
+  }) async {
+    final docRef = _firestore
+        .collection('families')
+        .doc(familyId)
+        .collection('children')
+        .doc(childId)
+        .collection('screen_time')
+        .doc('active_timer');
+    final doc = await docRef.get();
+    if (!doc.exists) return;
+    final data = doc.data()!;
+    final pausedAt = (data['paused_at'] as Timestamp?)?.toDate();
+    final startTime = (data['start_time'] as Timestamp).toDate();
+    final durationMinutes = data['duration_minutes'] as int;
+    if (pausedAt == null) return;
+    final now = DateTime.now();
+    final pausedDuration = now.difference(pausedAt);
+    final newStartTime = startTime.add(pausedDuration);
+    await docRef.update({
+      'is_paused': false,
+      'paused_at': null,
+      'start_time': Timestamp.fromDate(newStartTime),
+    });
+  }
+
+  /// Completes (stops) the active timer, moves it to sessions, and clears the active timer.
+  Future<void> completeActiveTimer({
+    required String familyId,
+    required String childId,
+  }) async {
+    final docRef = _firestore
+        .collection('families')
+        .doc(familyId)
+        .collection('children')
+        .doc(childId)
+        .collection('screen_time')
+        .doc('active_timer');
+    final doc = await docRef.get();
+    if (!doc.exists) return;
+    final data = doc.data()!;
+    final startTime = (data['start_time'] as Timestamp).toDate();
+    final now = DateTime.now();
+    final durationMinutes = now
+        .difference(startTime)
+        .inMinutes
+        .clamp(1, 99999); // Actual elapsed time, at least 1 min
+    // Add session
+    await _firestore
+        .collection('families')
+        .doc(familyId)
+        .collection('children')
+        .doc(childId)
+        .collection('screen_time')
+        .doc('sessions')
+        .collection('sessions')
+        .add({
+          'start_time': Timestamp.fromDate(startTime),
+          'end_time': Timestamp.fromDate(now),
+          'duration_minutes': durationMinutes,
+          'reason': 'timer',
+        });
+    // Remove active timer
+    await docRef.delete();
+    // Deduct from bucket
+    final bucketRef = _firestore
+        .collection('families')
+        .doc(familyId)
+        .collection('children')
+        .doc(childId)
+        .collection('screen_time')
+        .doc('bucket');
+    final bucketDoc = await bucketRef.get();
+    if (bucketDoc.exists) {
+      final bucketData = bucketDoc.data()!;
+      final totalMinutes = (bucketData['total_minutes'] ?? 0) as int;
+      await bucketRef.update({
+        'total_minutes': (totalMinutes - durationMinutes).clamp(0, 99999),
+        'last_updated': Timestamp.now(),
+      });
+    }
+  }
 }

@@ -121,8 +121,10 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
   void _onSelectChild(String childId, String childName) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) =>
-            ScreenTimeScreen(familyId: widget.user.uid, childId: childId),
+        builder: (_) => ScreenTimeScreen(
+          familyId: widget.user.uid,
+          initialChildId: childId,
+        ),
       ),
     );
   }

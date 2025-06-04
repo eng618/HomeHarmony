@@ -120,4 +120,41 @@ class ScreenTimeService {
               .toList(),
         );
   }
+
+  /// Streams the screen time bucket for a child.
+  Stream<ScreenTimeBucket?> bucketStream({
+    required String familyId,
+    required String childId,
+  }) {
+    return _firestore
+        .collection('families')
+        .doc(familyId)
+        .collection('children')
+        .doc(childId)
+        .collection('screen_time')
+        .doc('bucket')
+        .snapshots()
+        .map((doc) {
+          if (doc.exists) {
+            return ScreenTimeBucket.fromJson(doc.data()!);
+          }
+          return null;
+        });
+  }
+
+  /// Streams the active timer for a child.
+  Stream<ActiveTimer?> activeTimerStream({
+    required String familyId,
+    required String childId,
+  }) {
+    return _firestore
+        .collection('families')
+        .doc(familyId)
+        .collection('children')
+        .doc(childId)
+        .collection('screen_time')
+        .doc('active_timer')
+        .snapshots()
+        .map((doc) => doc.exists ? ActiveTimer.fromJson(doc.data()!) : null);
+  }
 }

@@ -26,6 +26,7 @@ lib/
 
 Use the following guidelines when writing code:
 
+- Document all public classes, methods, and properties using Dart's documentation comments.
 - Use Dart's `async` and `await` for asynchronous operations.
 - Implement state management using Riverpod.
 - Use `http` package for RESTful API calls.

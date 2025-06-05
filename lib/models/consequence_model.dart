@@ -1,34 +1,54 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Consequence {
   final String id;
   final String title;
   final String description;
-  final int value;
-  final List<String> children;
+  final int deductionMinutes;
+  final List<String> assignedChildren;
+  final List<String> linkedRules;
+  final Timestamp? appliedAt;
+  final String? appliedTo;
+  final Timestamp? createdAt;
+  final String createdBy;
 
   Consequence({
     required this.id,
     required this.title,
     required this.description,
-    required this.value,
-    required this.children,
+    required this.deductionMinutes,
+    required this.assignedChildren,
+    required this.linkedRules,
+    this.appliedAt,
+    this.appliedTo,
+    this.createdAt,
+    required this.createdBy,
   });
 
-  factory Consequence.fromMap(String id, Map<String, dynamic> data) {
+  factory Consequence.fromFirestore(String id, Map<String, dynamic> data) {
     return Consequence(
       id: id,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
-      value: data['value'] ?? 0,
-      children: List<String>.from(data['children'] ?? []),
+      deductionMinutes: data['deduction_minutes'] ?? 0,
+      assignedChildren: List<String>.from(data['assigned_children'] ?? []),
+      linkedRules: List<String>.from(data['linked_rules'] ?? []),
+      appliedAt: data['applied_at'],
+      appliedTo: data['applied_to'],
+      createdAt: data['created_at'],
+      createdBy: data['created_by'] ?? '',
     );
   }
 
-  Map<String, dynamic> toMap() {
-    return {
-      'title': title,
-      'description': description,
-      'value': value,
-      'children': children,
-    };
-  }
+  Map<String, dynamic> toFirestore() => {
+    'title': title,
+    'description': description,
+    'deduction_minutes': deductionMinutes,
+    'assigned_children': assignedChildren,
+    'linked_rules': linkedRules,
+    'applied_at': appliedAt,
+    'applied_to': appliedTo,
+    'created_at': createdAt,
+    'created_by': createdBy,
+  };
 }

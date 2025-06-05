@@ -25,8 +25,36 @@ class _AuthFormState extends ConsumerState<AuthForm> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
+  final FocusNode emailFocus = FocusNode();
+  final FocusNode passwordFocus = FocusNode();
   String? error;
   bool loading = false;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    nameController.dispose();
+    emailFocus.dispose();
+    passwordFocus.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    setState(() {
+      error = null;
+      loading = true;
+    });
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+    final err = await widget.onSubmit(email, password);
+    if (err != null) {
+      setState(() {
+        error = err;
+        loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,18 +76,29 @@ class _AuthFormState extends ConsumerState<AuthForm> {
           TextField(
             controller: nameController,
             decoration: const InputDecoration(labelText: 'Name'),
+            textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: 8),
         ],
         TextField(
           controller: emailController,
+          focusNode: emailFocus,
           decoration: const InputDecoration(labelText: 'Email'),
+          textInputAction: TextInputAction.next,
+          onSubmitted: (_) {
+            FocusScope.of(context).requestFocus(passwordFocus);
+          },
         ),
         const SizedBox(height: 8),
         TextField(
           controller: passwordController,
+          focusNode: passwordFocus,
           decoration: const InputDecoration(labelText: 'Password'),
           obscureText: true,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) {
+            if (!loading) _submit();
+          },
         ),
         if (error != null) ...[
           const SizedBox(height: 8),
@@ -67,23 +106,7 @@ class _AuthFormState extends ConsumerState<AuthForm> {
         ],
         const SizedBox(height: 16),
         ElevatedButton(
-          onPressed: loading
-              ? null
-              : () async {
-                  setState(() {
-                    error = null;
-                    loading = true;
-                  });
-                  final email = emailController.text.trim();
-                  final password = passwordController.text.trim();
-                  final err = await widget.onSubmit(email, password);
-                  if (err != null) {
-                    setState(() {
-                      error = err;
-                      loading = false;
-                    });
-                  }
-                },
+          onPressed: loading ? null : _submit,
           child: Text(widget.actionText),
         ),
       ],

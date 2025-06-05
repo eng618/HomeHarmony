@@ -58,7 +58,9 @@ class ConsequencesView extends ConsumerWidget {
                           Text(c.description),
                           Text('Deduction: ${c.deductionMinutes} min'),
                           if (c.linkedRules.isNotEmpty)
-                            Text('Linked rules: ${c.linkedRules.join(", ")}'),
+                            Text(
+                              'Linked rules: ${c.linkedRules.map((ruleId) => rules.firstWhere((r) => r['id'] == ruleId, orElse: () => {'title': ruleId})['title'] ?? ruleId).join(", ")}',
+                            ),
                         ],
                       ),
                       trailing: Row(

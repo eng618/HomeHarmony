@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/consequence_model.dart';
 
 /// Dialog/form for creating or editing a consequence, including rule linking.
 class ConsequenceForm extends ConsumerStatefulWidget {
@@ -71,6 +70,26 @@ class _ConsequenceFormState extends ConsumerState<ConsequenceForm> {
 
   @override
   Widget build(BuildContext context) {
+    // Compute children inherited from selected rules
+    final inheritedChildren = <String>{};
+    for (final rule in widget.rules) {
+      if (selectedRules.contains(rule['id'])) {
+        final assigned = rule['assigned_children'] as List<dynamic>? ?? [];
+        inheritedChildren.addAll(assigned.map((e) => e.toString()));
+      }
+    }
+    // Merge selected children and inherited children
+    final effectiveChildren = <String>{
+      ...selectedChildren,
+      ...inheritedChildren,
+    };
+    // Helper: get child name by id
+    String childName(String id) =>
+        widget.children.firstWhere(
+          (c) => c['id'] == id,
+          orElse: () => {'name': id},
+        )['name'] ??
+        id;
     return AlertDialog(
       title: Text(widget.isEdit ? 'Edit Consequence' : 'Add Consequence'),
       content: SingleChildScrollView(
@@ -102,7 +121,7 @@ class _ConsequenceFormState extends ConsumerState<ConsequenceForm> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Assign to:',
+                'Assign to (children):',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
             ),
@@ -146,6 +165,42 @@ class _ConsequenceFormState extends ConsumerState<ConsequenceForm> {
                 },
               ),
             ),
+            const SizedBox(height: 12),
+            if (selectedRules.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Children inherited from selected rules:',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Wrap(
+                    spacing: 8,
+                    children: inheritedChildren.map((id) {
+                      // Find which rules this child is inherited from
+                      final ruleTitles = widget.rules
+                          .where(
+                            (rule) =>
+                                selectedRules.contains(rule['id']) &&
+                                (rule['assigned_children'] as List<dynamic>? ??
+                                        [])
+                                    .contains(id),
+                          )
+                          .map((rule) => rule['title'] ?? rule['id'])
+                          .toSet();
+                      final label = ruleTitles.isNotEmpty
+                          ? '${childName(id)} (via ${ruleTitles.join(", ")})'
+                          : childName(id);
+                      return Chip(label: Text(label));
+                    }).toList(),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 8),
+            Text(
+              'Consequences can be assigned directly to children, to rules, or both. If you link to rules, all children assigned to those rules will inherit this consequence.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ],
         ),
       ),
@@ -157,7 +212,7 @@ class _ConsequenceFormState extends ConsumerState<ConsequenceForm> {
             final desc = descController.text.trim();
             final deduction =
                 int.tryParse(deductionController.text.trim()) ?? 0;
-            if (title.isEmpty || deduction <= 0 || selectedChildren.isEmpty) {
+            if (title.isEmpty || deduction <= 0 || effectiveChildren.isEmpty) {
               // TODO: Show error state
               return;
             }
@@ -165,7 +220,7 @@ class _ConsequenceFormState extends ConsumerState<ConsequenceForm> {
               title,
               desc,
               deduction,
-              selectedChildren,
+              effectiveChildren.toList(),
               selectedRules,
             );
           },

@@ -5,23 +5,13 @@
 
 A cross-platform Flutter application for families to manage rules, rewards, and consequences for children.
 
-## Architecture Overview
-
-```mermaid
-graph TD
-    A[Flutter App] -->|RESTful API| B[Backend Server]
-    A -->|Firebase Auth| C[Firebase]
-    A -->|Firestore| C
-    A -->|Provider| D[State Management]
-    A -->|Material Design 3| E[UI]
-```
-
 ## Features
 
 - Multi-user support: Parents (admin) and children (restricted)
-- Family rules management
-- Rewards for chores and good behavior
-- Consequence tracking with time-bound restrictions
+- [Family rules management](docs/rules.md)
+- [Rewards for chores and good behavior](docs/rewards.md)
+- [Consequence tracking with time-bound restrictions](docs/consequences.md)
+- Assign consequences to children or to rules (with automatic inheritance of children from rules)
 - RESTful API integration
 - Material Design 3 UI
 - Firebase Authentication & Firestore
@@ -34,7 +24,7 @@ graph TD
 
 ## Project Structure Overview
 
-```
+```text
 lib/
   ├── main.dart
   ├── models/
@@ -48,6 +38,10 @@ test/ - Automated tests
 ## Customization Instructions
 
 Update the app to fit your family's needs by editing rules, rewards, and consequences in the app UI. For advanced customization, modify models, services, and UI components in the `lib/` directory.
+
+- To customize consequence assignment logic, see [`docs/consequences.md`](docs/consequences.md), [`lib/widgets/consequence_form.dart`](lib/widgets/consequence_form.dart), and [`lib/views/consequences_view.dart`](lib/views/consequences_view.dart).
+- To customize rules logic, see [`docs/rules.md`](docs/rules.md) and [`lib/widgets/rule_dialog.dart`](lib/widgets/rule_dialog.dart).
+- To customize rewards/chores logic, see [`docs/rewards.md`](docs/rewards.md) and [`lib/screens/home/rewards_screen.dart`](lib/screens/home/rewards_screen.dart).
 
 ## License
 
@@ -122,3 +116,25 @@ The following steps outline the remaining work to reach the MVP (Minimum Viable 
 ---
 
 **We will update this section as features are completed. When all boxes are checked, the app is ready for MVP launch!**
+
+## Architecture Overview
+
+```mermaid
+flowchart TD
+    A[Flutter App]
+    B[Backend Server]
+    C[Firebase]
+    D[State Management]
+    E[UI]
+    A -->|RESTful API| B
+    A -->|Firebase Auth| C
+    A -->|Firestore| C
+    A -->|Riverpod| D
+    A -->|Material Design 3| E
+    D -->|Reactive| E
+    C -->|Rules, Rewards, Consequences| E
+```
+
+### Consequences Assignment Logic
+
+See [`docs/consequences.md`](docs/consequences.md) for full details on consequence assignment and inheritance.

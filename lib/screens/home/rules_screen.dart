@@ -25,6 +25,8 @@ class _RulesScreenState extends State<RulesScreen> {
 
   Future<void> _addOrEditRule({DocumentSnapshot? ruleDoc}) async {
     final children = await _fetchChildren();
+    if (!mounted) return;
+
     String initialTitle = ruleDoc?.get('title') ?? '';
     String initialDescription = ruleDoc?.get('description') ?? '';
     List<String> initialAssigned = List<String>.from(
@@ -46,6 +48,8 @@ class _RulesScreenState extends State<RulesScreen> {
             },
             onSubmit: (title, desc, assignedChildren) async {
               try {
+                Navigator.of(ctx).pop();
+
                 final data = {
                   'title': title,
                   'description': desc,
@@ -62,9 +66,11 @@ class _RulesScreenState extends State<RulesScreen> {
                 } else {
                   await ruleDoc.reference.update(data);
                 }
-                if (!ctx.mounted) return;
-                Navigator.of(ctx).pop();
-                setState(() {});
+                if (mounted) {
+                  setState(
+                    () {},
+                  ); // Rebuild the screen to reflect changes (StreamBuilder will also update)
+                }
               } catch (e) {
                 // Error state is handled by RuleDialog's Riverpod providers
               }

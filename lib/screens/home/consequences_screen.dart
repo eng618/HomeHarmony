@@ -64,40 +64,41 @@ class _ConsequencesScreenState extends ConsumerState<ConsequencesScreen> {
         rules: _rules,
         isEdit: consequence != null,
         onCancel: () => Navigator.of(ctx).pop(),
-        onSubmit:
-            (title, desc, deduction, assignedChildren, linkedRules) async {
-              final familyId = widget.user.uid;
-              final service = ConsequenceService();
-              if (consequence == null) {
-                await service.addConsequence(
-                  familyId,
-                  Consequence(
-                    id: '',
-                    title: title,
-                    description: desc,
-                    deductionMinutes: deduction,
-                    assignedChildren: assignedChildren,
-                    linkedRules: linkedRules,
-                    appliedAt: null,
-                    appliedTo: null,
-                    createdAt: Timestamp.now(),
-                    createdBy: familyId,
-                  ),
-                );
-              } else {
-                await service.updateConsequence(familyId, consequence.id, {
-                  'title': title,
-                  'description': desc,
-                  'deduction_minutes': deduction,
-                  'assigned_children': assignedChildren,
-                  'linked_rules': linkedRules,
-                });
-              }
-              if (mounted) {
-                Navigator.of(ctx).pop();
-                _fetchChildrenAndRules();
-              }
-            },
+        onSubmit: (title, desc, deduction, assignedChildren, linkedRules) async {
+          // Pop the dialog using its own context (ctx) before the async operations.
+          Navigator.of(ctx).pop();
+
+          final familyId = widget.user.uid;
+          final service = ConsequenceService();
+          if (consequence == null) {
+            await service.addConsequence(
+              familyId,
+              Consequence(
+                id: '',
+                title: title,
+                description: desc,
+                deductionMinutes: deduction,
+                assignedChildren: assignedChildren,
+                linkedRules: linkedRules,
+                appliedAt: null,
+                appliedTo: null,
+                createdAt: Timestamp.now(),
+                createdBy: familyId,
+              ),
+            );
+          } else {
+            await service.updateConsequence(familyId, consequence.id, {
+              'title': title,
+              'description': desc,
+              'deduction_minutes': deduction,
+              'assigned_children': assignedChildren,
+              'linked_rules': linkedRules,
+            });
+          }
+          if (mounted) {
+            _fetchChildrenAndRules();
+          }
+        },
       ),
     );
   }

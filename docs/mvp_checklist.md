@@ -9,6 +9,7 @@ The following steps outline the remaining work to reach the MVP (Minimum Viable 
   - [x] Parent can view and adjust each child's screen time
   - [x] Child can view their own screen time and session history
   - [x] Real-time updates for active timers and session logging
+  - [x] Family member management (add, edit, delete child profiles and accounts)
 
 - [ ] **Rules Management**
   - [ ] CRUD for family rules (parent)

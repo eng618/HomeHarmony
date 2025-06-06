@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:home_harmony/screens/home/screen_time_screen.dart';
 import '../../views/family_members_view.dart';
 import '../../models/child_profile.dart';
 import '../../services/family_service.dart';
 import '../../widgets/child_profile_form.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/child_account_form.dart';
+import '../../views/child_details_view.dart';
 
 class FamilyMembersScreen extends StatefulWidget {
   final User user;
@@ -121,10 +121,10 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
   void _onSelectChild(String childId, String childName) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ScreenTimeScreen(
+        builder: (_) => ChildDetailsView(
           familyId: widget.user.uid,
-          initialChildId: childId,
-        ),
+          childId: childId,
+        ), // Navigate to the new ChildDetailsView
       ),
     );
   }

@@ -42,22 +42,7 @@ class ScreenTimeView extends ConsumerWidget {
                 subtitle: bucket != null
                     ? Text('${bucket.totalMinutes} minutes')
                     : const Text('No screen time bucket found.'),
-                trailing: bucket == null
-                    ? TextButton(
-                        onPressed: () async {
-                          final service = ref.read(screenTimeServiceProvider);
-                          await service.updateBucket(
-                            familyId: familyId,
-                            childId: childId,
-                            bucket: ScreenTimeBucket(
-                              totalMinutes: 0,
-                              lastUpdated: Timestamp.now(),
-                            ),
-                          );
-                        },
-                        child: const Text('Initialize'),
-                      )
-                    : null,
+                // Removed trailing initialize button as bucket is created with child
               ),
             ),
             loading: () => Column(

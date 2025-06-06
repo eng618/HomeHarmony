@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:home_harmony/screens/home/screen_time_screen.dart';
 import '../models/child_profile.dart';
 
 /// View for displaying a list of children in a family and handling child profile actions.
@@ -120,9 +121,16 @@ class FamilyMembersView extends StatelessWidget {
                             icon: const Icon(Icons.timer),
                             tooltip: 'Screen Time',
                             onPressed: () {
-                              if (onSelectChild != null) {
-                                onSelectChild!(child.id, child.name);
-                              }
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => ScreenTimeScreen(
+                                    familyId:
+                                        familyId, // familyId from FamilyMembersView
+                                    initialChildId: child
+                                        .id, // child.id from the current item
+                                  ),
+                                ),
+                              );
                             },
                           ),
                           IconButton(

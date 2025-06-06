@@ -26,6 +26,7 @@ lib/
 
 Use the following guidelines when writing code:
 
+- Use Dart/Flutter best practices (e.g., Effective Dart).
 - Document all public classes, methods, and properties using Dart's documentation comments.
 - Use Dart's `async` and `await` for asynchronous operations.
 - Implement state management using Riverpod.

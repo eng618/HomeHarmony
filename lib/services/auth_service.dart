@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'screen_time_service.dart';
+import '../models/screen_time_models.dart';
 
 class AuthService {
   static Future<String?> signIn(String email, String password) async {
@@ -89,6 +91,20 @@ class AuthService {
             'created_at': FieldValue.serverTimestamp(),
             'profile_picture': profilePicture,
           });
+
+      // Initialize screen time bucket for the new child account
+      final screenTimeService =
+          ScreenTimeService(); // Uses default Firestore instance
+      await screenTimeService.updateBucket(
+        familyId: parentUid, // The familyId is the parent's UID
+        childId:
+            childUid, // The childId is the child's Auth UID, used as doc ID
+        bucket: ScreenTimeBucket(
+          totalMinutes: 0,
+          lastUpdated: Timestamp.now(), // Use client time for initial creation
+        ),
+      );
+
       return null;
     } on FirebaseAuthException catch (e) {
       return e.message;

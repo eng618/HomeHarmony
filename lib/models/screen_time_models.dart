@@ -6,17 +6,20 @@ class ScreenTimeBucket {
   /// Total available screen time in minutes.
   final int totalMinutes;
 
-  /// Timestamp of the last update to the bucket.
-  final Timestamp lastUpdated;
+  /// Timestamp of the last update to the bucket (nullable).
+  final Timestamp? lastUpdated;
 
   /// Creates a [ScreenTimeBucket] instance.
-  ScreenTimeBucket({required this.totalMinutes, required this.lastUpdated});
+  ScreenTimeBucket({required this.totalMinutes, this.lastUpdated});
 
   /// Creates a [ScreenTimeBucket] from a Firestore JSON map.
   factory ScreenTimeBucket.fromJson(Map<String, dynamic> json) {
+    if (json['last_updated'] == null) {
+      print('[WARNING] ScreenTimeBucket.fromJson: Missing last_updated');
+    }
     return ScreenTimeBucket(
       totalMinutes: json['total_minutes'] ?? 0,
-      lastUpdated: json['last_updated'] ?? Timestamp.now(),
+      lastUpdated: json['last_updated'],
     );
   }
 
@@ -29,8 +32,8 @@ class ScreenTimeBucket {
 
 /// Model representing the active timer for a child's screen time session.
 class ActiveTimer {
-  /// Timestamp when the timer started.
-  final Timestamp startTime;
+  /// Timestamp when the timer started (nullable).
+  final Timestamp? startTime;
 
   /// Allocated time for the session in minutes.
   final int durationMinutes;
@@ -43,7 +46,7 @@ class ActiveTimer {
 
   /// Creates an [ActiveTimer] instance.
   ActiveTimer({
-    required this.startTime,
+    this.startTime,
     required this.durationMinutes,
     required this.isPaused,
     this.pausedAt,
@@ -51,8 +54,11 @@ class ActiveTimer {
 
   /// Creates an [ActiveTimer] from a Firestore JSON map.
   factory ActiveTimer.fromJson(Map<String, dynamic> json) {
+    if (json['start_time'] == null) {
+      print('[WARNING] ActiveTimer.fromJson: Missing start_time');
+    }
     return ActiveTimer(
-      startTime: json['start_time'] ?? Timestamp.now(),
+      startTime: json['start_time'],
       durationMinutes: json['duration_minutes'] ?? 0,
       isPaused: json['is_paused'] ?? false,
       pausedAt: json['paused_at'],
@@ -73,8 +79,8 @@ class ScreenTimeSession {
   /// Firestore document ID for the session.
   final String id;
 
-  /// Timestamp when the session started.
-  final Timestamp startTime;
+  /// Timestamp when the session started (nullable).
+  final Timestamp? startTime;
 
   /// Timestamp when the session ended (null if ongoing).
   final Timestamp? endTime;
@@ -88,7 +94,7 @@ class ScreenTimeSession {
   /// Creates a [ScreenTimeSession] instance.
   ScreenTimeSession({
     required this.id,
-    required this.startTime,
+    this.startTime,
     this.endTime,
     required this.durationMinutes,
     required this.reason,
@@ -96,9 +102,14 @@ class ScreenTimeSession {
 
   /// Creates a [ScreenTimeSession] from a Firestore JSON map and document ID.
   factory ScreenTimeSession.fromJson(String id, Map<String, dynamic> json) {
+    if (json['start_time'] == null) {
+      print(
+        '[WARNING] ScreenTimeSession.fromJson: Missing start_time for session id: $id',
+      );
+    }
     return ScreenTimeSession(
       id: id,
-      startTime: json['start_time'] ?? Timestamp.now(),
+      startTime: json['start_time'],
       endTime: json['end_time'],
       durationMinutes: json['duration_minutes'] ?? 0,
       reason: json['reason'] ?? '',

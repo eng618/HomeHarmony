@@ -181,13 +181,12 @@ class _ExpandablePanel extends StatelessWidget {
   final String title;
   final IconData icon;
   final List<Widget> children;
-  final bool initiallyExpanded;
 
+  /// Creates an expandable panel with a title, icon, and child widgets.
   const _ExpandablePanel({
     required this.title,
     required this.icon,
     required this.children,
-    this.initiallyExpanded = false,
   });
 
   @override
@@ -196,7 +195,7 @@ class _ExpandablePanel extends StatelessWidget {
       child: ExpansionTile(
         leading: Icon(icon),
         title: Text(title, style: Theme.of(context).textTheme.titleMedium),
-        initiallyExpanded: initiallyExpanded,
+        initiallyExpanded: false, // All panels will be collapsed by default
         childrenPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 8,

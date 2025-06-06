@@ -6,6 +6,8 @@ import '../../models/consequence_model.dart';
 import '../../services/consequence_service.dart';
 import '../../widgets/consequence_form.dart';
 import '../../views/consequences_view.dart';
+import '../../models/child_profile.dart';
+import '../../models/rule_model.dart';
 
 class ConsequencesScreen extends ConsumerStatefulWidget {
   final User user;
@@ -16,8 +18,8 @@ class ConsequencesScreen extends ConsumerStatefulWidget {
 }
 
 class _ConsequencesScreenState extends ConsumerState<ConsequencesScreen> {
-  List<Map<String, dynamic>> _children = [];
-  List<Map<String, dynamic>> _rules = [];
+  List<ChildProfile> _children = [];
+  List<Rule> _rules = [];
   bool _loading = true;
 
   @override
@@ -42,10 +44,10 @@ class _ConsequencesScreenState extends ConsumerState<ConsequencesScreen> {
         .get();
     setState(() {
       _children = childrenSnap.docs
-          .map((doc) => {'id': doc.id, ...doc.data()})
+          .map((doc) => ChildProfile.fromFirestore(doc.id, doc.data()))
           .toList();
       _rules = rulesSnap.docs
-          .map((doc) => {'id': doc.id, ...doc.data()})
+          .map((doc) => Rule.fromFirestore(doc.id, doc.data()))
           .toList();
       _loading = false;
     });

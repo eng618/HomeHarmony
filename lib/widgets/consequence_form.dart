@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/child_profile.dart';
+import '../models/rule_model.dart';
 
 /// Dialog/form for creating or editing a consequence, including rule linking.
 class ConsequenceForm extends ConsumerStatefulWidget {
@@ -8,8 +10,8 @@ class ConsequenceForm extends ConsumerStatefulWidget {
   final int? initialDeductionMinutes;
   final List<String> initialAssignedChildren;
   final List<String> initialLinkedRules;
-  final List<Map<String, dynamic>> children;
-  final List<Map<String, dynamic>> rules;
+  final List<ChildProfile> children;
+  final List<Rule> rules;
   final bool isEdit;
   final void Function(
     String title,
@@ -73,9 +75,8 @@ class _ConsequenceFormState extends ConsumerState<ConsequenceForm> {
     // Compute children inherited from selected rules
     final inheritedChildren = <String>{};
     for (final rule in widget.rules) {
-      if (selectedRules.contains(rule['id'])) {
-        final assigned = rule['assigned_children'] as List<dynamic>? ?? [];
-        inheritedChildren.addAll(assigned.map((e) => e.toString()));
+      if (selectedRules.contains(rule.id)) {
+        inheritedChildren.addAll(rule.assignedChildren);
       }
     }
     // Merge selected children and inherited children
@@ -84,12 +85,18 @@ class _ConsequenceFormState extends ConsumerState<ConsequenceForm> {
       ...inheritedChildren,
     };
     // Helper: get child name by id
-    String childName(String id) =>
-        widget.children.firstWhere(
-          (c) => c['id'] == id,
-          orElse: () => {'name': id},
-        )['name'] ??
-        id;
+    String childName(String id) => widget.children
+        .firstWhere(
+          (c) => c.id == id,
+          orElse: () => ChildProfile(
+            id: id,
+            name: id,
+            age: 0,
+            profileType: 'local',
+            parentId: '',
+          ),
+        )
+        .name;
     return AlertDialog(
       title: Text(widget.isEdit ? 'Edit Consequence' : 'Add Consequence'),
       content: SingleChildScrollView(
@@ -127,15 +134,15 @@ class _ConsequenceFormState extends ConsumerState<ConsequenceForm> {
             ),
             ...widget.children.map(
               (child) => CheckboxListTile(
-                value: selectedChildren.contains(child['id']),
-                title: Text(child['name'] ?? 'No name'),
-                subtitle: Text('Age: ${child['age'] ?? 'N/A'}'),
+                value: selectedChildren.contains(child.id),
+                title: Text(child.name),
+                subtitle: Text('Age: ${child.age}'),
                 onChanged: (checked) {
                   setState(() {
                     if (checked == true) {
-                      selectedChildren.add(child['id']);
+                      selectedChildren.add(child.id);
                     } else {
-                      selectedChildren.remove(child['id']);
+                      selectedChildren.remove(child.id);
                     }
                   });
                 },
@@ -151,15 +158,15 @@ class _ConsequenceFormState extends ConsumerState<ConsequenceForm> {
             ),
             ...widget.rules.map(
               (rule) => CheckboxListTile(
-                value: selectedRules.contains(rule['id']),
-                title: Text(rule['title'] ?? 'No title'),
-                subtitle: Text(rule['description'] ?? ''),
+                value: selectedRules.contains(rule.id),
+                title: Text(rule.title),
+                subtitle: Text(rule.description),
                 onChanged: (checked) {
                   setState(() {
                     if (checked == true) {
-                      selectedRules.add(rule['id']);
+                      selectedRules.add(rule.id);
                     } else {
-                      selectedRules.remove(rule['id']);
+                      selectedRules.remove(rule.id);
                     }
                   });
                 },
@@ -181,12 +188,10 @@ class _ConsequenceFormState extends ConsumerState<ConsequenceForm> {
                       final ruleTitles = widget.rules
                           .where(
                             (rule) =>
-                                selectedRules.contains(rule['id']) &&
-                                (rule['assigned_children'] as List<dynamic>? ??
-                                        [])
-                                    .contains(id),
+                                selectedRules.contains(rule.id) &&
+                                rule.assignedChildren.contains(id),
                           )
-                          .map((rule) => rule['title'] ?? rule['id'])
+                          .map((rule) => rule.title)
                           .toSet();
                       final label = ruleTitles.isNotEmpty
                           ? '${childName(id)} (via ${ruleTitles.join(", ")})'

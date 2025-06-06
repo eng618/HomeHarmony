@@ -216,7 +216,9 @@ class ScreenTimeView extends ConsumerWidget {
                                 ),
                                 title: Text('${s.durationMinutes} min'),
                                 subtitle: Text(
-                                  'Started: ${s.startTime.toDate()}\nReason: ${s.reason}',
+                                  'Started: '
+                                  '${s.startTime?.toDate() ?? '-'}\n'
+                                  'Reason: ${s.reason}',
                                 ),
                               ),
                             ),
@@ -263,7 +265,9 @@ class _ActiveTimerCountdownState extends State<_ActiveTimerCountdown> {
   void initState() {
     super.initState();
     durationMinutes = widget.timer.durationMinutes;
-    startTime = widget.timer.startTime.toDate();
+    startTime =
+        widget.timer.startTime?.toDate() ??
+        DateTime.fromMillisecondsSinceEpoch(0);
     isPaused = widget.timer.isPaused;
     pausedAt = widget.timer.pausedAt?.toDate();
     endTime = startTime.add(Duration(minutes: durationMinutes));
@@ -295,7 +299,9 @@ class _ActiveTimerCountdownState extends State<_ActiveTimerCountdown> {
     isPaused = widget.timer.isPaused;
     pausedAt = widget.timer.pausedAt?.toDate();
     durationMinutes = widget.timer.durationMinutes;
-    startTime = widget.timer.startTime.toDate();
+    startTime =
+        widget.timer.startTime?.toDate() ??
+        DateTime.fromMillisecondsSinceEpoch(0);
     endTime = startTime.add(Duration(minutes: durationMinutes));
     remaining = _calcRemaining();
   }

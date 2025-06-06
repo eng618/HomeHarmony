@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/consequence_model.dart';
+import '../models/child_profile.dart';
+import '../models/rule_model.dart';
 import '../utils/consequence_providers.dart';
 
 /// Top-level view for listing and managing consequences for a family.
 class ConsequencesView extends ConsumerWidget {
   final String familyId;
-  final List<Map<String, dynamic>> children;
-  final List<Map<String, dynamic>> rules;
+  final List<ChildProfile> children;
+  final List<Rule> rules;
   final void Function(Consequence consequence)? onEdit;
   final void Function(Consequence consequence)? onDelete;
   final void Function()? onAdd;
@@ -59,7 +61,10 @@ class ConsequencesView extends ConsumerWidget {
                           Text('Deduction: ${c.deductionMinutes} min'),
                           if (c.linkedRules.isNotEmpty)
                             Text(
-                              'Linked rules: ${c.linkedRules.map((ruleId) => rules.firstWhere((r) => r['id'] == ruleId, orElse: () => {'title': ruleId})['title'] ?? ruleId).join(", ")}',
+                              'Linked rules: ${c.linkedRules.map((ruleId) => rules.firstWhere(
+                                (r) => r.id == ruleId,
+                                orElse: () => Rule(id: ruleId, title: ruleId, description: '', assignedChildren: [], createdBy: '', createdAt: null),
+                              ).title).join(", ")}',
                             ),
                         ],
                       ),

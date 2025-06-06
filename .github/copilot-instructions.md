@@ -35,6 +35,7 @@ Use the following guidelines when writing code:
 - Use `intl` package for localization.
 - Use `shared_preferences` for local storage.
 - Don't use 'BuildContext's across async gaps
+- Use lib/utils/logger for structured logging thoughout the application.
 
 Always ensure the README.md file is updated with the latest project information, including features, setup instructions, and customization options.
 Make sure to include the following sections in the README.md:

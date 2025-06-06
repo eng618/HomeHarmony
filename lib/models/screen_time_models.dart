@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/logger.dart';
 
 /// Model representing the screen time bucket for a child.
 /// Holds the total available screen time and the last update timestamp.
@@ -15,7 +16,7 @@ class ScreenTimeBucket {
   /// Creates a [ScreenTimeBucket] from a Firestore JSON map.
   factory ScreenTimeBucket.fromJson(Map<String, dynamic> json) {
     if (json['last_updated'] == null) {
-      print('[WARNING] ScreenTimeBucket.fromJson: Missing last_updated');
+      log.w('ScreenTimeBucket.fromJson: Missing last_updated');
     }
     return ScreenTimeBucket(
       totalMinutes: json['total_minutes'] ?? 0,
@@ -55,7 +56,7 @@ class ActiveTimer {
   /// Creates an [ActiveTimer] from a Firestore JSON map.
   factory ActiveTimer.fromJson(Map<String, dynamic> json) {
     if (json['start_time'] == null) {
-      print('[WARNING] ActiveTimer.fromJson: Missing start_time');
+      log.w('ActiveTimer.fromJson: Missing start_time');
     }
     return ActiveTimer(
       startTime: json['start_time'],
@@ -103,8 +104,8 @@ class ScreenTimeSession {
   /// Creates a [ScreenTimeSession] from a Firestore JSON map and document ID.
   factory ScreenTimeSession.fromJson(String id, Map<String, dynamic> json) {
     if (json['start_time'] == null) {
-      print(
-        '[WARNING] ScreenTimeSession.fromJson: Missing start_time for session id: $id',
+      log.w(
+        '[ScreenTimeSession.fromJson] Missing start_time for session id: $id',
       );
     }
     return ScreenTimeSession(

@@ -8,6 +8,7 @@ import 'views/auth_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'utils/auth_providers.dart';
 import 'screens/home/home_screen.dart';
+import 'utils/logger.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +17,7 @@ void main() async {
   } catch (e) {
     if (!kIsWeb) {
       // Only print error for non-web, since web will always fail
-      debugPrint('Failed to load .env: $e');
+      log.e('Failed to load .env: $e');
     }
   }
   if (kIsWeb) {

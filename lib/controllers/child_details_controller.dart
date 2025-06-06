@@ -78,11 +78,19 @@ class ChildDetailsController extends StateNotifier<ChildDetailsState> {
             .get();
         consViaRulesDocs = consViaRulesSnap.docs;
       }
-      final allConsDocs = {
-        ...directConsSnap.docs,
-        ...consViaRulesDocs,
-      }; // Use Set to merge and implicitly deduplicate by doc path
-      final activeConsequences = allConsDocs
+
+      // Use a Map to ensure deduplication by document ID
+      final Map<String, QueryDocumentSnapshot<Map<String, dynamic>>>
+      uniqueConsDocs = {};
+      for (var doc in directConsSnap.docs) {
+        uniqueConsDocs[doc.id] = doc;
+      }
+      for (var doc in consViaRulesDocs) {
+        uniqueConsDocs[doc.id] =
+            doc; // This will overwrite if already present, ensuring uniqueness by ID
+      }
+
+      final activeConsequences = uniqueConsDocs.values
           .map((doc) => Consequence.fromFirestore(doc.id, doc.data()).title)
           .toSet() // Deduplicate by title
           .toList();

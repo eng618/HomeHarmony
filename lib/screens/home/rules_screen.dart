@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../widgets/rule_dialog.dart';
 
 class RulesScreen extends StatefulWidget {
   final User user;
@@ -11,180 +12,72 @@ class RulesScreen extends StatefulWidget {
 }
 
 class _RulesScreenState extends State<RulesScreen> {
+  // Fetch children from the new schema: families/{familyId}/children
   Future<List<Map<String, dynamic>>> _fetchChildren() async {
     final snapshot = await FirebaseFirestore.instance
-        .collection('users')
+        .collection('families')
         .doc(widget.user.uid)
         .collection('children')
+        .orderBy('created_at', descending: false)
         .get();
     return snapshot.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
   }
 
   Future<void> _addOrEditRule({DocumentSnapshot? ruleDoc}) async {
-    final titleController = TextEditingController(
-      text: ruleDoc?.get('title') ?? '',
-    );
-    final descController = TextEditingController(
-      text: ruleDoc?.get('description') ?? '',
-    );
-    List<String> selectedChildren = List<String>.from(
-      ruleDoc?.get('children') ?? [],
-    );
-    String? error;
-    bool loading = false;
     final children = await _fetchChildren();
+    if (!mounted) return;
 
-    if (!mounted) {
-      return;
-    } // Ensures the widget is still mounted before using its context for showDialog.
+    String initialTitle = ruleDoc?.get('title') ?? '';
+    String initialDescription = ruleDoc?.get('description') ?? '';
+    List<String> initialAssigned = List<String>.from(
+      ruleDoc?.get('assigned_children') ?? [],
+    );
     await showDialog(
-      // The 'context' passed here is from _RulesScreenState.
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setState) => AlertDialog(
-          title: Text(ruleDoc == null ? 'Add Rule' : 'Edit Rule'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  decoration: InputDecoration(
-                    labelText: 'Title',
-                    counterText: '${titleController.text.length}/50',
-                  ),
-                  maxLength: 50,
-                  onChanged: (_) => setState(() {}),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: descController,
-                  decoration: InputDecoration(
-                    labelText: 'Description',
-                    counterText: '${descController.text.length}/200',
-                  ),
-                  minLines: 1,
-                  maxLines: 3,
-                  maxLength: 200,
-                  onChanged: (_) => setState(() {}),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Assign to:',
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                    ),
-                    if (children.length > 1)
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: selectedChildren.length == children.length,
-                            tristate: false,
-                            onChanged: (checked) {
-                              setState(() {
-                                if (checked == true) {
-                                  selectedChildren = children
-                                      .map<String>((c) => c['id'] as String)
-                                      .toList();
-                                } else {
-                                  selectedChildren.clear();
-                                }
-                              });
-                            },
-                          ),
-                          const SizedBox(width: 4),
-                          const Text('Select All'),
-                        ],
-                      ),
-                  ],
-                ),
-                ...children.map(
-                  (child) => CheckboxListTile(
-                    value: selectedChildren.contains(child['id']),
-                    title: Text(child['name'] ?? 'No name'),
-                    subtitle: Text('Age: ${child['age'] ?? 'N/A'}'),
-                    onChanged: (checked) {
-                      setState(() {
-                        if (checked == true) {
-                          selectedChildren.add(child['id']);
-                        } else {
-                          selectedChildren.remove(child['id']);
-                        }
-                      });
-                    },
-                  ),
-                ),
-                if (error != null) ...[
-                  const SizedBox(height: 8),
-                  Text(error!, style: const TextStyle(color: Colors.red)),
-                ],
-                if (loading) ...[
-                  const SizedBox(height: 16),
-                  const CircularProgressIndicator(),
-                ],
-              ],
-            ),
+      barrierDismissible: true,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setState) => RuleDialog(
+            initialTitle: initialTitle,
+            initialDescription: initialDescription,
+            initialAssignedChildren: initialAssigned,
+            children: children,
+            isEdit: ruleDoc != null,
+            onCancel: () {
+              Navigator.of(ctx).pop();
+            },
+            onSubmit: (title, desc, assignedChildren) async {
+              try {
+                Navigator.of(ctx).pop();
+
+                final data = {
+                  'title': title,
+                  'description': desc,
+                  'assigned_children': assignedChildren,
+                  'created_at': FieldValue.serverTimestamp(),
+                  'created_by': widget.user.uid,
+                };
+                final rulesRef = FirebaseFirestore.instance
+                    .collection('families')
+                    .doc(widget.user.uid)
+                    .collection('rules');
+                if (ruleDoc == null) {
+                  await rulesRef.add(data);
+                } else {
+                  await ruleDoc.reference.update(data);
+                }
+                if (mounted) {
+                  setState(
+                    () {},
+                  ); // Rebuild the screen to reflect changes (StreamBuilder will also update)
+                }
+              } catch (e) {
+                // Error state is handled by RuleDialog's Riverpod providers
+              }
+            },
           ),
-          actions: [
-            TextButton(
-              onPressed: loading ? null : () => Navigator.of(ctx).pop(),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: loading
-                  ? null
-                  : () async {
-                      final title = titleController.text.trim();
-                      final desc = descController.text.trim();
-                      if (title.isEmpty || selectedChildren.isEmpty) {
-                        setState(() {
-                          error = 'Title and at least one child required.';
-                        });
-                        return;
-                      }
-                      setState(() {
-                        error = null;
-                        loading = true;
-                      });
-                      try {
-                        final data = {
-                          'title': title,
-                          'description': desc,
-                          'children': selectedChildren,
-                          'createdAt': FieldValue.serverTimestamp(),
-                        };
-                        if (ruleDoc == null) {
-                          await FirebaseFirestore.instance
-                              .collection('users')
-                              .doc(widget.user.uid)
-                              .collection('rules')
-                              .add(data);
-                        } else {
-                          await ruleDoc.reference.update(data);
-                        }
-                        // Don't use BuildContext after an async gap
-                        if (!ctx.mounted) return;
-                        if (Navigator.of(ctx).canPop()) {
-                          Navigator.of(ctx).pop();
-                        }
-                        setState(() {});
-                      } catch (e) {
-                        setState(() {
-                          error = e.toString();
-                          loading = false;
-                        });
-                      }
-                    },
-              child: Text(ruleDoc == null ? 'Add' : 'Save'),
-            ),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -206,10 +99,10 @@ class _RulesScreenState extends State<RulesScreen> {
             Expanded(
               child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                 stream: FirebaseFirestore.instance
-                    .collection('users')
+                    .collection('families')
                     .doc(widget.user.uid)
                     .collection('rules')
-                    .orderBy('createdAt', descending: false)
+                    .orderBy('created_at', descending: false)
                     .snapshots(),
                 builder: (context, ruleSnapshot) {
                   if (ruleSnapshot.connectionState == ConnectionState.waiting) {
@@ -260,9 +153,8 @@ class _RulesScreenState extends State<RulesScreen> {
                                 if (!childSnap.hasData) return const SizedBox();
                                 final assigned = childSnap.data!
                                     .where(
-                                      (c) => (rule['children'] ?? []).contains(
-                                        c['id'],
-                                      ),
+                                      (c) => (rule['assigned_children'] ?? [])
+                                          .contains(c['id']),
                                     )
                                     .map((c) => c['name'])
                                     .join(', ');

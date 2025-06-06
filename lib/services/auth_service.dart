@@ -20,11 +20,20 @@ class AuthService {
         email: email,
         password: password,
       );
-      // Set default role to parent for new users
+      final parentUid = cred.user!.uid;
+      // Create user profile in users collection (optional, for lookup)
+      await FirebaseFirestore.instance.collection('users').doc(parentUid).set({
+        'email': cred.user!.email,
+        'role': 'parent',
+      });
+      // Create family document with parent_ids and created_at
       await FirebaseFirestore.instance
-          .collection('users')
-          .doc(cred.user!.uid)
-          .set({'email': cred.user!.email, 'role': 'parent'});
+          .collection('families')
+          .doc(parentUid)
+          .set({
+            'parent_ids': [parentUid],
+            'created_at': FieldValue.serverTimestamp(),
+          });
       return null;
     } on FirebaseAuthException catch (e) {
       return e.message;
@@ -46,6 +55,43 @@ class AuthService {
       return e.message;
     } catch (e) {
       return e.toString();
+    }
+  }
+
+  /// Creates a child account (full login-enabled) and adds it to the parent's family/children collection.
+  static Future<String?> createChildAccount({
+    required String parentUid,
+    required String parentEmail,
+    required String childName,
+    required int childAge,
+    required String email,
+    required String password,
+    String? profilePicture,
+  }) async {
+    try {
+      final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      final childUid = cred.user!.uid;
+      // Add child profile under the parent's family/children collection
+      await FirebaseFirestore.instance
+          .collection('families')
+          .doc(parentUid)
+          .collection('children')
+          .doc(childUid)
+          .set({
+            'name': childName,
+            'age': childAge,
+            'profile_type': 'full',
+            'auth_uid': childUid,
+            'parent_id': parentUid,
+            'created_at': FieldValue.serverTimestamp(),
+            'profile_picture': profilePicture,
+          });
+      return null;
+    } on FirebaseAuthException catch (e) {
+      return e.message;
     }
   }
 }

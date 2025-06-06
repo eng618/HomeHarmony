@@ -26,15 +26,14 @@ class Consequence {
   });
 
   factory Consequence.fromFirestore(String id, Map<String, dynamic> data) {
-    // Log a warning if required timestamp fields are missing
     if (data['created_at'] == null) {
-      print(
-        '[WARNING] Consequence.fromFirestore: Missing created_at for consequence id: $id',
+      throw StateError(
+        'Consequence.fromFirestore: Missing created_at for consequence id: $id',
       );
     }
     if (data['created_by'] == null) {
-      print(
-        '[WARNING] Consequence.fromFirestore: Missing created_by for consequence id: $id',
+      throw StateError(
+        'Consequence.fromFirestore: Missing created_by for consequence id: $id',
       );
     }
     return Consequence(

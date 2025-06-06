@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/family_service.dart';
 import '../models/child_profile.dart';
 import 'screen_time_view.dart';
+import '../utils/screen_time_providers.dart';
+import '../models/screen_time_models.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ScreenTimeSelectorView extends ConsumerStatefulWidget {
   final String familyId;
@@ -44,6 +47,30 @@ class _ScreenTimeSelectorViewState
         selectedChildId ??= children.first.id;
         return Scaffold(
           appBar: AppBar(title: const Text('Screen Time')),
+          floatingActionButton: selectedChildId == null
+              ? null
+              : FloatingActionButton.extended(
+                  icon: const Icon(Icons.add_card), // Changed icon for clarity
+                  label: const Text('Initialize Bucket'),
+                  tooltip: 'Create or reset screen time bucket to 0',
+                  onPressed: () async {
+                    final service = ref.read(screenTimeServiceProvider);
+                    await service.updateBucket(
+                      familyId: widget.familyId,
+                      childId: selectedChildId!,
+                      bucket: ScreenTimeBucket(
+                        totalMinutes: 0,
+                        lastUpdated: Timestamp.now(),
+                      ),
+                    );
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Screen time bucket initialized!'),
+                      ),
+                    );
+                  },
+                ),
           body: Column(
             children: [
               Padding(

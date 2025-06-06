@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/child_profile.dart';
+import '../models/screen_time_models.dart';
+import 'screen_time_service.dart';
 
 /// Service for managing family and child profiles in Firestore.
 class FamilyService {
@@ -17,7 +19,7 @@ class FamilyService {
     required String parentId,
     String? profilePicture,
   }) async {
-    await _firestore
+    final childDocRef = await _firestore
         .collection('families')
         .doc(familyId)
         .collection('children')
@@ -30,6 +32,17 @@ class FamilyService {
           'created_at': FieldValue.serverTimestamp(),
           'profile_picture': profilePicture,
         });
+
+    // Initialize screen time bucket for the new child
+    final screenTimeService = ScreenTimeService(firestore: _firestore);
+    await screenTimeService.updateBucket(
+      familyId: familyId,
+      childId: childDocRef.id,
+      bucket: ScreenTimeBucket(
+        totalMinutes: 0,
+        lastUpdated: Timestamp.now(), // Use client time for initial creation
+      ),
+    );
   }
 
   /// Update an existing child profile.

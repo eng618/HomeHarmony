@@ -83,7 +83,7 @@ Project Maintainers: Eric N. Garcia (<eng618@garciaericn.com>)
 - Firebase (firebase_core, firebase_auth, cloud_firestore)
 - Provider
 - http
-- mockito, fake_cloud_firestore (for testing)
+- mocktail, fake_cloud_firestore (for testing)
 - Material Design 3
 
 ## Changelog

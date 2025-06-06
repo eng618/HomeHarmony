@@ -29,216 +29,178 @@ class ScreenTimeView extends ConsumerWidget {
     final timerAsync = ref.watch(activeTimerProvider(params));
     final sessionsAsync = ref.watch(screenTimeSessionsProvider(params));
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Screen Time')),
-      floatingActionButton: FloatingActionButton.extended(
-        icon: const Icon(Icons.add),
-        label: const Text('Force Initialize'),
-        onPressed: () async {
-          final service = ref.read(screenTimeServiceProvider);
-          await service.updateBucket(
-            familyId: familyId,
-            childId: childId,
-            bucket: ScreenTimeBucket(
-              totalMinutes: 0,
-              lastUpdated: Timestamp.now(),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView(
+        children: [
+          // Screen Time Bucket
+          bucketAsync.when(
+            data: (bucket) => Card(
+              child: ListTile(
+                leading: const Icon(Icons.timer, color: Color(0xFF2A9D8F)),
+                title: const Text('Total Screen Time'),
+                subtitle: bucket != null
+                    ? Text('${bucket.totalMinutes} minutes')
+                    : const Text('No screen time bucket found.'),
+                // Removed trailing initialize button as bucket is created with child
+              ),
             ),
-          );
-          // Check if the widget is still in the tree (mounted) before using BuildContext.
-          if (!context.mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Screen time bucket created!')),
-          );
-        },
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            // Screen Time Bucket
-            bucketAsync.when(
-              data: (bucket) => Card(
+            loading: () => Column(
+              children: [
+                const Center(child: CircularProgressIndicator()),
+                const SizedBox(height: 8),
+                Text('Loading screen time bucket...'),
+                Text('familyId: $familyId'),
+                Text('childId: $childId'),
+              ],
+            ),
+            error: (e, _) =>
+                Text('Error: $e\nfamilyId: $familyId\nchildId: $childId'),
+          ),
+          const SizedBox(height: 16),
+          // Active Timer
+          timerAsync.when(
+            data: (timer) {
+              final canStartTimer =
+                  (bucketAsync.valueOrNull?.totalMinutes ?? 0) >= 1;
+              return Card(
                 child: ListTile(
-                  leading: const Icon(Icons.timer, color: Color(0xFF2A9D8F)),
-                  title: const Text('Total Screen Time'),
-                  subtitle: bucket != null
-                      ? Text('${bucket.totalMinutes} minutes')
-                      : const Text('No screen time bucket found.'),
-                  trailing: bucket == null
-                      ? TextButton(
-                          onPressed: () async {
-                            final service = ref.read(screenTimeServiceProvider);
-                            await service.updateBucket(
-                              familyId: familyId,
-                              childId: childId,
-                              bucket: ScreenTimeBucket(
-                                totalMinutes: 0,
-                                lastUpdated: Timestamp.now(),
-                              ),
-                            );
-                          },
-                          child: const Text('Initialize'),
+                  leading: Icon(
+                    timer?.isPaused == true ? Icons.pause : Icons.play_arrow,
+                    color: Color(0xFFF48C06),
+                  ),
+                  title: const Text('Active Timer'),
+                  subtitle: timer != null
+                      ? _ActiveTimerCountdown(timer: timer)
+                      : !canStartTimer
+                      ? const Text(
+                          'Not enough screen time available to start a timer.',
                         )
-                      : null,
-                ),
-              ),
-              loading: () => Column(
-                children: [
-                  const Center(child: CircularProgressIndicator()),
-                  const SizedBox(height: 8),
-                  Text('Loading screen time bucket...'),
-                  Text('familyId: $familyId'),
-                  Text('childId: $childId'),
-                ],
-              ),
-              error: (e, _) =>
-                  Text('Error: $e\nfamilyId: $familyId\nchildId: $childId'),
-            ),
-            const SizedBox(height: 16),
-            // Active Timer
-            timerAsync.when(
-              data: (timer) {
-                final canStartTimer =
-                    (bucketAsync.valueOrNull?.totalMinutes ?? 0) >= 1;
-                return Card(
-                  child: ListTile(
-                    leading: Icon(
-                      timer?.isPaused == true ? Icons.pause : Icons.play_arrow,
-                      color: Color(0xFFF48C06),
-                    ),
-                    title: const Text('Active Timer'),
-                    subtitle: timer != null
-                        ? _ActiveTimerCountdown(timer: timer)
-                        : !canStartTimer
-                        ? const Text(
-                            'Not enough screen time available to start a timer.',
-                          )
-                        : const Text('No active timer.'),
-                    trailing: timer == null
-                        ? TextButton(
-                            onPressed: canStartTimer
-                                ? () async {
-                                    final service = ref.read(
-                                      screenTimeServiceProvider,
-                                    );
-                                    await service.updateActiveTimer(
-                                      familyId: familyId,
-                                      childId: childId,
-                                      timer: ActiveTimer(
-                                        startTime: Timestamp.now(),
-                                        durationMinutes: 30,
-                                        isPaused: false,
-                                        pausedAt: null,
-                                      ),
-                                    );
-                                  }
-                                : null,
-                            child: const Text('Start Timer'),
-                          )
-                        : Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (timer.isPaused)
-                                IconButton(
-                                  icon: const Icon(Icons.play_arrow),
-                                  tooltip: 'Resume',
-                                  onPressed: () async {
-                                    final service = ref.read(
-                                      screenTimeServiceProvider,
-                                    );
-                                    await service.resumeActiveTimer(
-                                      familyId: familyId,
-                                      childId: childId,
-                                    );
-                                  },
-                                )
-                              else
-                                IconButton(
-                                  icon: const Icon(Icons.pause),
-                                  tooltip: 'Pause',
-                                  onPressed: () async {
-                                    final service = ref.read(
-                                      screenTimeServiceProvider,
-                                    );
-                                    await service.pauseActiveTimer(
-                                      familyId: familyId,
-                                      childId: childId,
-                                    );
-                                  },
-                                ),
+                      : const Text('No active timer.'),
+                  trailing: timer == null
+                      ? TextButton(
+                          onPressed: canStartTimer
+                              ? () async {
+                                  final service = ref.read(
+                                    screenTimeServiceProvider,
+                                  );
+                                  await service.updateActiveTimer(
+                                    familyId: familyId,
+                                    childId: childId,
+                                    timer: ActiveTimer(
+                                      startTime: Timestamp.now(),
+                                      durationMinutes: 30,
+                                      isPaused: false,
+                                      pausedAt: null,
+                                    ),
+                                  );
+                                }
+                              : null,
+                          child: const Text('Start Timer'),
+                        )
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (timer.isPaused)
                               IconButton(
-                                icon: const Icon(Icons.stop),
-                                tooltip: 'Stop',
+                                icon: const Icon(Icons.play_arrow),
+                                tooltip: 'Resume',
                                 onPressed: () async {
                                   final service = ref.read(
                                     screenTimeServiceProvider,
                                   );
-                                  await service.completeActiveTimer(
+                                  await service.resumeActiveTimer(
+                                    familyId: familyId,
+                                    childId: childId,
+                                  );
+                                },
+                              )
+                            else
+                              IconButton(
+                                icon: const Icon(Icons.pause),
+                                tooltip: 'Pause',
+                                onPressed: () async {
+                                  final service = ref.read(
+                                    screenTimeServiceProvider,
+                                  );
+                                  await service.pauseActiveTimer(
                                     familyId: familyId,
                                     childId: childId,
                                   );
                                 },
                               ),
-                            ],
-                          ),
-                  ),
-                );
-              },
-              loading: () => Column(
-                children: [
-                  const Center(child: CircularProgressIndicator()),
-                  const SizedBox(height: 8),
-                  Text('Loading active timer...'),
-                  Text('familyId: $familyId'),
-                  Text('childId: $childId'),
-                ],
-              ),
-              error: (e, _) =>
-                  Text('Error: $e\nfamilyId: $familyId\nchildId: $childId'),
+                            IconButton(
+                              icon: const Icon(Icons.stop),
+                              tooltip: 'Stop',
+                              onPressed: () async {
+                                final service = ref.read(
+                                  screenTimeServiceProvider,
+                                );
+                                await service.completeActiveTimer(
+                                  familyId: familyId,
+                                  childId: childId,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                ),
+              );
+            },
+            loading: () => Column(
+              children: [
+                const Center(child: CircularProgressIndicator()),
+                const SizedBox(height: 8),
+                Text('Loading active timer...'),
+                Text('familyId: $familyId'),
+                Text('childId: $childId'),
+              ],
             ),
-            const SizedBox(height: 16),
-            // Session History
-            Text(
-              'Session History',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            sessionsAsync.when(
-              data: (sessions) => sessions.isEmpty
-                  ? const Text('No sessions found.')
-                  : Column(
-                      children: sessions
-                          .map(
-                            (s) => Card(
-                              child: ListTile(
-                                leading: const Icon(
-                                  Icons.history,
-                                  color: Color(0xFF264653),
-                                ),
-                                title: Text('${s.durationMinutes} min'),
-                                subtitle: Text(
-                                  'Started: '
-                                  '${s.startTime?.toDate() ?? '-'}\n'
-                                  'Reason: ${s.reason}',
-                                ),
+            error: (e, _) =>
+                Text('Error: $e\nfamilyId: $familyId\nchildId: $childId'),
+          ),
+          const SizedBox(height: 16),
+          // Session History
+          Text(
+            'Session History',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          sessionsAsync.when(
+            data: (sessions) => sessions.isEmpty
+                ? const Text('No sessions found.')
+                : Column(
+                    children: sessions
+                        .map(
+                          (s) => Card(
+                            child: ListTile(
+                              leading: const Icon(
+                                Icons.history,
+                                color: Color(0xFF264653),
+                              ),
+                              title: Text('${s.durationMinutes} min'),
+                              subtitle: Text(
+                                'Started: '
+                                '${s.startTime?.toDate() ?? '-'}\n'
+                                'Reason: ${s.reason}',
                               ),
                             ),
-                          )
-                          .toList(),
-                    ),
-              loading: () => Column(
-                children: [
-                  const Center(child: CircularProgressIndicator()),
-                  const SizedBox(height: 8),
-                  Text('Loading session history...'),
-                  Text('familyId: $familyId'),
-                  Text('childId: $childId'),
-                ],
-              ),
-              error: (e, _) =>
-                  Text('Error: $e\nfamilyId: $familyId\nchildId: $childId'),
+                          ),
+                        )
+                        .toList(),
+                  ),
+            loading: () => Column(
+              children: [
+                const Center(child: CircularProgressIndicator()),
+                const SizedBox(height: 8),
+                Text('Loading session history...'),
+                Text('familyId: $familyId'),
+                Text('childId: $childId'),
+              ],
             ),
-          ],
-        ),
+            error: (e, _) =>
+                Text('Error: $e\nfamilyId: $familyId\nchildId: $childId'),
+          ),
+        ],
       ),
     );
   }

@@ -26,6 +26,7 @@ lib/
 
 Use the following guidelines when writing code:
 
+- Use Dart/Flutter best practices (e.g., Effective Dart).
 - Document all public classes, methods, and properties using Dart's documentation comments.
 - Use Dart's `async` and `await` for asynchronous operations.
 - Implement state management using Riverpod.
@@ -74,7 +75,7 @@ If Firebase is used in the project, ensure to follow these guidelines:
 - Add or update unit tests when modifying code.
 - Write unit tests for all models and services.
 - Write widget tests for all views and widgets.
-- Use `mockito` for mocking dependencies in tests.
+- Use `Mocktail` for mocking dependencies in tests.
 - Ensure all tests pass before committing code.
 - Use `flutter test` to run tests locally.
 - Use `flutter drive` for integration tests.

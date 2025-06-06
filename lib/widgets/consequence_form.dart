@@ -47,6 +47,7 @@ class _ConsequenceFormState extends ConsumerState<ConsequenceForm> {
   late TextEditingController deductionController;
   late List<String> selectedChildren;
   late List<String> selectedRules;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -103,6 +104,14 @@ class _ConsequenceFormState extends ConsumerState<ConsequenceForm> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Text(
+                  errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
             TextField(
               controller: titleController,
               decoration: const InputDecoration(labelText: 'Title'),
@@ -217,10 +226,27 @@ class _ConsequenceFormState extends ConsumerState<ConsequenceForm> {
             final desc = descController.text.trim();
             final deduction =
                 int.tryParse(deductionController.text.trim()) ?? 0;
-            if (title.isEmpty || deduction <= 0 || effectiveChildren.isEmpty) {
-              // TODO: Show error state
+            if (title.isEmpty) {
+              setState(() {
+                errorMessage = 'Title is required.';
+              });
               return;
             }
+            if (deduction <= 0) {
+              setState(() {
+                errorMessage = 'Deduction must be greater than 0.';
+              });
+              return;
+            }
+            if (effectiveChildren.isEmpty) {
+              setState(() {
+                errorMessage = 'Please assign at least one child.';
+              });
+              return;
+            }
+            setState(() {
+              errorMessage = null;
+            });
             widget.onSubmit(
               title,
               desc,

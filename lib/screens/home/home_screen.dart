@@ -7,6 +7,7 @@ import 'rewards_screen.dart';
 import 'screen_time_screen.dart';
 import 'activity_history_screen.dart';
 import '../profile/profile_screen.dart';
+import '../../widgets/section_stub.dart';
 
 class HomeScreen extends StatelessWidget {
   final VoidCallback? onOpenProfile;
@@ -45,7 +46,7 @@ class HomeScreen extends StatelessWidget {
             onTap: () {
               _openFamilyMembers(context, user);
             },
-            child: _SectionStub(title: 'Family Members', icon: Icons.group),
+            child: SectionStub(title: 'Family Members', icon: Icons.group),
           ),
           const SizedBox(height: 24),
           GestureDetector(
@@ -54,7 +55,7 @@ class HomeScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => RulesScreen(user: user)),
               );
             },
-            child: _SectionStub(title: 'Rules', icon: Icons.rule),
+            child: SectionStub(title: 'Rules', icon: Icons.rule),
           ),
           const SizedBox(height: 24),
           GestureDetector(
@@ -63,7 +64,7 @@ class HomeScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => RewardsScreen(user: user)),
               );
             },
-            child: _SectionStub(title: 'Rewards', icon: Icons.emoji_events),
+            child: SectionStub(title: 'Rewards', icon: Icons.emoji_events),
           ),
           const SizedBox(height: 24),
           GestureDetector(
@@ -74,7 +75,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               );
             },
-            child: _SectionStub(title: 'Consequences', icon: Icons.warning),
+            child: SectionStub(title: 'Consequences', icon: Icons.warning),
           ),
           const SizedBox(height: 24),
           GestureDetector(
@@ -85,7 +86,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               );
             },
-            child: _SectionStub(
+            child: SectionStub(
               title: 'Screen Time Tracking',
               icon: Icons.timer,
             ),
@@ -99,35 +100,9 @@ class HomeScreen extends StatelessWidget {
                 ),
               );
             },
-            child: _SectionStub(title: 'Activity Feed', icon: Icons.history),
+            child: SectionStub(title: 'Activity Feed', icon: Icons.history),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SectionStub extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  const _SectionStub({required this.title, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-        child: Row(
-          children: [
-            Icon(icon, size: 40, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 24),
-            Text(title, style: Theme.of(context).textTheme.titleLarge),
-            const Spacer(),
-            const Icon(Icons.chevron_right, color: Colors.grey),
-          ],
-        ),
       ),
     );
   }

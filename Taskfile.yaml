@@ -19,7 +19,7 @@ tasks:
       - flutter run -d chrome
 
   serve:clean:
-    desc: Stop the Flutter development server
+    desc: Clean and serve the application
     cmds:
       - task: clean
       - task: get
@@ -118,3 +118,8 @@ tasks:
     desc: Generate app icons and favicon for all platforms using flutter_launcher_icons
     cmds:
       - dart run flutter_launcher_icons
+
+  update_icons:
+    desc: Update app icons using flutter_launcher_icons
+    cmds:
+      - flutter pub run flutter_launcher_icons:main

@@ -7,7 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'views/auth_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'utils/auth_providers.dart';
-import 'screens/home/home_screen.dart';
+import 'views/main_shell.dart';
 import 'utils/logger.dart';
 
 void main() async {
@@ -58,7 +58,7 @@ class MyApp extends ConsumerWidget {
       home: userAsync.when(
         data: (user) {
           if (user != null) {
-            return HomeScreen(user: user);
+            return MainShell(user: user);
           } else {
             return const AuthScreen();
           }

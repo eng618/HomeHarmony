@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/child_profile.dart';
 import '../models/screen_time_models.dart';
+import '../models/rule_model.dart';
 import 'screen_time_service.dart';
 
 /// Service for managing family and child profiles in Firestore.
@@ -94,6 +95,21 @@ class FamilyService {
         .map(
           (snapshot) => snapshot.docs
               .map((doc) => ChildProfile.fromFirestore(doc.id, doc.data()))
+              .toList(),
+        );
+  }
+
+  /// Stream all rules for a family.
+  Stream<List<Rule>> rulesStream(String familyId) {
+    return _firestore
+        .collection('families')
+        .doc(familyId)
+        .collection('rules')
+        .orderBy('created_at', descending: false)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => Rule.fromFirestore(doc.id, doc.data()))
               .toList(),
         );
   }

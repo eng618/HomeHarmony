@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:home_harmony/screens/home/screen_time_screen.dart';
+import 'package:home_harmony/screens/screen_time/screen_time_screen.dart';
 import '../controllers/child_details_controller.dart';
 import '../models/child_details.dart';
 

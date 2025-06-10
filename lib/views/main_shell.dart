@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../screens/home/family_members_screen.dart';
-import '../screens/home/rules_screen.dart';
-import '../screens/home/rewards_screen.dart';
-import '../screens/home/consequences_screen.dart';
-import '../screens/home/screen_time_screen.dart';
-import '../screens/home/activity_history_screen.dart';
+import '../screens/family_members/family_members_screen.dart';
+import '../screens/rules/rules_screen.dart';
+import '../screens/rewards/rewards_screen.dart';
+import '../screens/consequences/consequences_screen.dart';
+import '../screens/screen_time/screen_time_screen.dart';
+import '../screens/activity/activity_history_screen.dart';
 import '../screens/profile/profile_screen.dart';
 
 class MainShell extends StatefulWidget {

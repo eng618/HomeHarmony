@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:home_harmony/screens/home/screen_time_screen.dart';
+import 'package:home_harmony/screens/screen_time/screen_time_screen.dart';
 import '../models/child_profile.dart';
 
 /// View for displaying a list of children in a family and handling child profile actions.

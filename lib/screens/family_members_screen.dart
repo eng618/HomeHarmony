@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../views/family_members_view.dart';
-import '../../models/child_profile.dart';
-import '../../services/family_service.dart';
-import '../../widgets/child_profile_form.dart';
-import '../../services/auth_service.dart';
-import '../../widgets/child_account_form.dart';
-import '../../views/child_details_view.dart';
+import '../views/family_members_view.dart';
+import '../models/child_profile.dart';
+import '../services/family_service.dart';
+import '../widgets/child_profile_form.dart';
+import '../services/auth_service.dart';
+import '../widgets/child_account_form.dart';
+import '../views/child_details_view.dart';
 
 class FamilyMembersScreen extends StatefulWidget {
   final User user;

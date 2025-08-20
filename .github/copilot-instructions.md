@@ -66,6 +66,13 @@ If Firebase is used in the project, ensure to follow these guidelines:
 - Ensure to configure Firebase in the `android/app/google-services.json` and `ios/Runner/GoogleService-Info.plist` files.
 - Use `firebase_crashlytics` for crash reporting.
 
+### Firebase Rules
+
+- Define Firestore security rules to protect your data.
+- Use the Firebase Emulator Suite to test your rules locally.
+- Write unit tests for your security rules using the `firebase_functions_test` package.
+- Always validate firebase rule and update the Firestore security rules accordingly.
+
 ## Testing Guidelines
 
 - Use `flutter_test` for unit and widget tests.

@@ -18,6 +18,11 @@ tasks:
     cmds:
       - flutter run -d chrome
 
+  serve:linux:
+    desc: Serve the application on Linux
+    cmds:
+      - flutter run -d linux
+
   serve:clean:
     desc: Clean and serve the application
     cmds:

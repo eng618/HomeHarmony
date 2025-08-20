@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /families/{familyId} {
+      allow read: if request.auth != null;
+
+      match /children/{childId} {
+        allow create: if request.auth.uid == request.resource.data.parent_id;
+        allow read, update, delete: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
+
+        match /screen_time/{docId} {
+          allow read, write: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
+
+          match /sessions/{sessionId} {
+            allow read, write: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
+          }
+        }
+      }
+
+      match /rules/{ruleId} {
+        allow read, write: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
+      }
+
+      match /consequences/{consequenceId} {
+        allow read, write: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
+      }
+    }
+
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+  }
+}

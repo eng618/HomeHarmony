@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'env_web.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -20,23 +19,8 @@ void main() async {
       log.e('Failed to load .env: $e');
     }
   }
-  if (kIsWeb) {
-    await Firebase.initializeApp(
-      options: FirebaseOptions(
-        apiKey: firebaseConfig['apiKey']!,
-        authDomain: firebaseConfig['authDomain'],
-        projectId: firebaseConfig['projectId']!,
-        storageBucket: firebaseConfig['storageBucket']!,
-        messagingSenderId: firebaseConfig['messagingSenderId']!,
-        appId: firebaseConfig['appId']!,
-        measurementId: firebaseConfig['measurementId'],
-      ),
-    );
-  } else {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  }
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const ProviderScope(child: MyApp()));
 }
 

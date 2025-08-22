@@ -48,7 +48,10 @@ app.*.map.json
 
 # Firebase configuration files
 .firebase/
-lib/env_web.dart
 lib/firebase_options.dart
 ios/Runner/GoogleService-Info.plist
 android/app/google-services.json
+
+
+#Ignore vscode AI rules
+.github/instructions/codacy.instructions.md

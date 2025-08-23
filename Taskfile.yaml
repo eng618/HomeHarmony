@@ -6,6 +6,11 @@ tasks:
     cmds:
       - flutter build web
 
+  build:android:release:
+    desc: Build the Android application
+    cmds:
+      - flutter build appbundle --release
+
   deploy:
     desc: Deploy the application to Firebase Hosting
     deps:
@@ -13,7 +18,7 @@ tasks:
     cmds:
       - firebase deploy --only hosting
 
-  serve:
+  serve:web:
     desc: Serve the application locally
     cmds:
       - flutter run -d chrome
@@ -28,7 +33,7 @@ tasks:
     cmds:
       - task: clean
       - task: get
-      - task: serve
+      - task: serve:web
 
   clean:
     desc: Clean the Flutter build cache

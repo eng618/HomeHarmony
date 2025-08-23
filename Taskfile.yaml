@@ -1,15 +1,22 @@
 version: '3'
 
 tasks:
-  build:
+  build:web:
     desc: Build the Flutter application
     cmds:
       - flutter build web
 
-  build:android:release:
+  build:android:
     desc: Build the Android application
     cmds:
       - flutter build appbundle --release
+
+  build:android:release:
+    desc: Build the Android application
+    cmds:
+      - task: clean
+      - task: get
+      - task: build:android
 
   deploy:
     desc: Deploy the application to Firebase Hosting

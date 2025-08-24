@@ -77,7 +77,7 @@ class _ManualConsequenceViewState extends ConsumerState<ManualConsequenceView> {
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<String>(
-          value: _selectedChildId,
+          initialValue: _selectedChildId,
           isExpanded: true,
           hint: const Text('Select child'),
           items: widget.children

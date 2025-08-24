@@ -80,7 +80,7 @@ class _RewardsViewState extends ConsumerState<RewardsView> {
             builder: (context, snapshot) {
               final children = snapshot.data ?? [];
               return DropdownButtonFormField<String>(
-                value: selectedChildId,
+                initialValue: selectedChildId,
                 isExpanded: true,
                 hint: const Text('Select child'),
                 items: children

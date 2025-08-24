@@ -17,35 +17,29 @@ class SettingsScreen extends ConsumerWidget {
             title: Text('Appearance'),
             subtitle: Text('Choose your theme'),
           ),
-          RadioListTile<ThemeMode>(
-            title: const Text('Light'),
-            value: ThemeMode.light,
+          RadioGroup<ThemeMode>(
             groupValue: themeMode,
             onChanged: (mode) {
               if (mode != null) {
                 ref.read(themeModeProvider.notifier).setTheme(mode);
               }
             },
-          ),
-          RadioListTile<ThemeMode>(
-            title: const Text('Dark'),
-            value: ThemeMode.dark,
-            groupValue: themeMode,
-            onChanged: (mode) {
-              if (mode != null) {
-                ref.read(themeModeProvider.notifier).setTheme(mode);
-              }
-            },
-          ),
-          RadioListTile<ThemeMode>(
-            title: const Text('System Default'),
-            value: ThemeMode.system,
-            groupValue: themeMode,
-            onChanged: (mode) {
-              if (mode != null) {
-                ref.read(themeModeProvider.notifier).setTheme(mode);
-              }
-            },
+            child: Column(
+              children: [
+                RadioListTile<ThemeMode>(
+                  title: const Text('Light'),
+                  value: ThemeMode.light,
+                ),
+                RadioListTile<ThemeMode>(
+                  title: const Text('Dark'),
+                  value: ThemeMode.dark,
+                ),
+                RadioListTile<ThemeMode>(
+                  title: const Text('System Default'),
+                  value: ThemeMode.system,
+                ),
+              ],
+            ),
           ),
           // --- Notification Preferences (Stub) ---
           SwitchListTile(

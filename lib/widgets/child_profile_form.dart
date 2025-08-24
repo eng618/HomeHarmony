@@ -79,7 +79,7 @@ class _ChildProfileFormState extends State<ChildProfileForm> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
-            value: _profileType,
+            initialValue: _profileType,
             items: const [
               DropdownMenuItem(
                 value: 'local',

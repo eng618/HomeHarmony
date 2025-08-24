@@ -1,6 +1,10 @@
 version: '3'
 
 tasks:
+
+# -----------------------------------------------------------------------------
+# Flutter Builds
+
   build:web:
     desc: Build the Flutter application
     cmds:
@@ -11,12 +15,113 @@ tasks:
     cmds:
       - flutter build appbundle --release
 
-  build:android:release:
+  build:ios:
+    desc: Build the iOS application
+    cmds:
+      - flutter build ios --release
+
+  build:linux:
+    desc: Build the Linux application
+    cmds:
+      - flutter build linux --release
+
+  build:windows:
+    desc: Build the Windows application
+    cmds:
+      - flutter build windows --release
+
+  build:macos:
+    desc: Build the macOS application
+    cmds:
+      - flutter build macos --release
+
+# -----------------------------------------------------------------------------
+# Release Builds
+
+  release:web:
+    desc: Build the web application for release
+    cmds:
+      - task: clean
+      - task: get
+      - task: build:web
+
+  release:android:
     desc: Build the Android application
     cmds:
       - task: clean
       - task: get
       - task: build:android
+
+  release:ios:
+    desc: Build the iOS application
+    cmds:
+      - task: clean
+      - task: get
+      - task: build:ios
+
+  release:linux:
+    desc: Build the Linux application
+    cmds:
+      - task: clean
+      - task: get
+      - task: build:linux 
+
+  release:windows:
+    desc: Build the Windows application
+    cmds:
+      - task: clean
+      - task: get
+      - task: build:windows
+
+  release:macos:
+    desc: Build the macOS application
+    cmds:
+      - task: clean
+      - task: get
+      - task: build:macos
+
+# -----------------------------------------------------------------------------
+# Flutter server
+
+  serve:web:
+    desc: Serve the application locally
+    cmds:
+      - flutter run -d chrome
+
+  serve:web:clean:
+    desc: Clean and serve the application
+    cmds:
+      - task: clean
+      - task: get
+      - task: serve:web
+
+  serve:linux:
+    desc: Serve the application on Linux
+    cmds:
+      - flutter run -d linux
+
+  serve:windows:
+    desc: Serve the application on Windows
+    cmds:
+      - flutter run -d windows
+
+  serve:macos:
+    desc: Serve the application on macOS
+    cmds:
+      - flutter run -d macos
+
+  serve:android:
+    desc: Serve the application on Android
+    cmds:
+      - flutter run -d android
+
+  serve:ios:
+    desc: Serve the application on iOS
+    cmds:
+      - flutter run -d ios
+
+# -----------------------------------------------------------------------------
+# Deploy
 
   deploy:
     desc: Deploy the application to Firebase Hosting
@@ -25,37 +130,23 @@ tasks:
     cmds:
       - firebase deploy --only hosting
 
-  serve:web:
-    desc: Serve the application locally
-    cmds:
-      - flutter run -d chrome
+# -----------------------------------------------------------------------------
+# Validation and Maintenance
 
-  serve:linux:
-    desc: Serve the application on Linux
+  validate:
+    desc: Validate code quality, linting, tests, and build
     cmds:
-      - flutter run -d linux
+      - task: analyze
+      # - task: format
+      - task: lint
+      - task: test
+      - task: build:web
 
-  serve:clean:
-    desc: Clean and serve the application
-    cmds:
-      - task: clean
-      - task: get
-      - task: serve:web
 
   clean:
     desc: Clean the Flutter build cache
     cmds:
       - flutter clean
-
-  get:
-    desc: Get Flutter dependencies
-    cmds:
-      - flutter pub get
-
-  upgrade:
-    desc: Upgrade Flutter dependencies
-    cmds:
-      - flutter pub upgrade
 
   analyze:
     desc: Analyze the Flutter code
@@ -76,6 +167,35 @@ tasks:
     desc: Run Flutter linting
     cmds:
       - flutter analyze --no-fatal-infos --no-fatal-warnings
+
+# -----------------------------------------------------------------------------
+# Icons
+
+  generate_icons:
+    desc: Generate app icons and favicon for all platforms using flutter_launcher_icons
+    cmds:
+      - dart run flutter_launcher_icons
+
+  update_icons:
+    desc: Update app icons using flutter_launcher_icons
+    cmds:
+      - flutter pub run flutter_launcher_icons:main
+
+# -----------------------------------------------------------------------------
+# Dependencies
+
+  get:
+    desc: Get Flutter dependencies
+    cmds:
+      - flutter pub get
+
+  upgrade:
+    desc: Upgrade Flutter dependencies
+    cmds:
+      - flutter pub upgrade
+
+# -----------------------------------------------------------------------------
+# Firebase
 
   firebase:login:
     desc: Log in to Firebase
@@ -122,21 +242,3 @@ tasks:
     cmds:
       - firebase deploy
 
-  validate:
-    desc: Validate code quality, linting, tests, and build
-    cmds:
-      - task: analyze
-      # - task: format
-      - task: lint
-      - task: test
-      - task: build
-
-  generate_icons:
-    desc: Generate app icons and favicon for all platforms using flutter_launcher_icons
-    cmds:
-      - dart run flutter_launcher_icons
-
-  update_icons:
-    desc: Update app icons using flutter_launcher_icons
-    cmds:
-      - flutter pub run flutter_launcher_icons:main

@@ -36,7 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   http: ^1.2.1
   firebase_core: ^4.0.0
-  firebase_auth: ^6.0.0
+  firebase_auth: ^6.0.2
   cloud_firestore: ^6.0.0
   flutter_dotenv: ^6.0.0
   flutter_speed_dial: ^7.0.0

@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - main
+  merge_group:
+    branches:
+      - main
 permissions:
   contents: read
   id-token: write

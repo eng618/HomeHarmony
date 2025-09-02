@@ -39,9 +39,10 @@ jobs:
           echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
 
       - name: Generate firebase_options.dart
-        run: flutterfire configure --project=home-harmony-d0778 --out=lib/firebase_options.dart --platforms=web --yes
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_CI_TOKEN }}
+        run: |
+          echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_HOME_HARMONY_D0778 }}" > /tmp/service_account.json
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/service_account.json
+          flutterfire configure --project=home-harmony-d0778 --out=lib/firebase_options.dart --platforms=web --yes
 
       - run: flutter pub get && flutter build web --release
 

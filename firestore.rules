@@ -6,7 +6,8 @@ service cloud.firestore {
 
       match /children/{childId} {
         allow create: if request.auth.uid == request.resource.data.parent_id;
-        allow read, update, delete: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
+        allow read: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids || request.auth.uid == childId;
+        allow update, delete: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
 
         match /screen_time/{docId} {
           allow read, write: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;

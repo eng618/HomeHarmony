@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../widgets/rule_dialog.dart';
+import '../../../services/family_service.dart';
+import '../../../models/rule_model.dart';
 
 class RulesView extends StatefulWidget {
   final User user;
@@ -13,6 +15,8 @@ class RulesView extends StatefulWidget {
 }
 
 class _RulesViewState extends State<RulesView> {
+  final FamilyService _familyService = FamilyService();
+
   Future<List<Map<String, dynamic>>> _fetchChildren() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('families')
@@ -23,15 +27,14 @@ class _RulesViewState extends State<RulesView> {
     return snapshot.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
   }
 
-  Future<void> _addOrEditRule({DocumentSnapshot? ruleDoc}) async {
+  Future<void> _addOrEditRule({Rule? rule}) async {
     final children = await _fetchChildren();
     if (!mounted) return;
 
-    String initialTitle = ruleDoc?.get('title') ?? '';
-    String initialDescription = ruleDoc?.get('description') ?? '';
-    List<String> initialAssigned = List<String>.from(
-      ruleDoc?.get('assigned_children') ?? [],
-    );
+    String initialTitle = rule?.title ?? '';
+    String initialDescription = rule?.description ?? '';
+    List<String> initialAssigned = rule?.assignedChildren ?? [];
+
     await showDialog(
       context: context,
       barrierDismissible: true,
@@ -42,7 +45,7 @@ class _RulesViewState extends State<RulesView> {
             initialDescription: initialDescription,
             initialAssignedChildren: initialAssigned,
             children: children,
-            isEdit: ruleDoc != null,
+            isEdit: rule != null,
             onCancel: () {
               Navigator.of(ctx).pop();
             },
@@ -50,21 +53,22 @@ class _RulesViewState extends State<RulesView> {
               try {
                 Navigator.of(ctx).pop();
 
-                final data = {
-                  'title': title,
-                  'description': desc,
-                  'assigned_children': assignedChildren,
-                  'created_at': FieldValue.serverTimestamp(),
-                  'created_by': widget.user.uid,
-                };
-                final rulesRef = FirebaseFirestore.instance
-                    .collection('families')
-                    .doc(widget.user.uid)
-                    .collection('rules');
-                if (ruleDoc == null) {
-                  await rulesRef.add(data);
+                if (rule == null) {
+                  await _familyService.addRule(
+                    familyId: widget.user.uid,
+                    title: title,
+                    description: desc,
+                    assignedChildren: assignedChildren,
+                    createdBy: widget.user.uid,
+                  );
                 } else {
-                  await ruleDoc.reference.update(data);
+                  await _familyService.updateRule(
+                    familyId: widget.user.uid,
+                    ruleId: rule.id,
+                    title: title,
+                    description: desc,
+                    assignedChildren: assignedChildren,
+                  );
                 }
                 if (mounted) {
                   setState(() {});
@@ -93,18 +97,13 @@ class _RulesViewState extends State<RulesView> {
           const SizedBox(height: 24),
           const Text('Rules:', style: TextStyle(fontWeight: FontWeight.bold)),
           Expanded(
-            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream: FirebaseFirestore.instance
-                  .collection('families')
-                  .doc(widget.user.uid)
-                  .collection('rules')
-                  .orderBy('created_at', descending: false)
-                  .snapshots(),
+            child: StreamBuilder<List<Rule>>(
+              stream: _familyService.rulesStream(widget.user.uid),
               builder: (context, ruleSnapshot) {
                 if (ruleSnapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                final rules = ruleSnapshot.data?.docs ?? [];
+                final rules = ruleSnapshot.data ?? [];
                 if (rules.isEmpty) {
                   return const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
@@ -114,25 +113,24 @@ class _RulesViewState extends State<RulesView> {
                 return ListView.builder(
                   itemCount: rules.length,
                   itemBuilder: (context, idx) {
-                    final ruleDoc = rules[idx];
-                    final rule = ruleDoc.data();
+                    final rule = rules[idx];
                     return ListTile(
                       leading: const Icon(Icons.rule),
                       title: Text(
-                        rule['title'] ?? 'No title',
+                        rule.title,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if ((rule['description'] ?? '').isNotEmpty)
+                          if (rule.description.isNotEmpty)
                             Padding(
                               padding: const EdgeInsets.only(
                                 top: 2.0,
                                 bottom: 2.0,
                               ),
                               child: Text(
-                                rule['description'],
+                                rule.description,
                                 style: TextStyle(
                                   fontWeight: FontWeight.normal,
                                   color:
@@ -149,7 +147,7 @@ class _RulesViewState extends State<RulesView> {
                               if (!childSnap.hasData) return const SizedBox();
                               final assigned = childSnap.data!
                                   .where(
-                                    (c) => (rule['assigned_children'] ?? [])
+                                    (c) => rule.assignedChildren
                                         .contains(c['id']),
                                   )
                                   .map((c) => c['name'])
@@ -165,7 +163,7 @@ class _RulesViewState extends State<RulesView> {
                           IconButton(
                             icon: const Icon(Icons.edit),
                             tooltip: 'Edit',
-                            onPressed: () => _addOrEditRule(ruleDoc: ruleDoc),
+                            onPressed: () => _addOrEditRule(rule: rule),
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete),
@@ -176,7 +174,7 @@ class _RulesViewState extends State<RulesView> {
                                 builder: (ctx) => AlertDialog(
                                   title: const Text('Delete Rule'),
                                   content: Text(
-                                    'Are you sure you want to delete "${rule['title']}"?',
+                                    'Are you sure you want to delete "${rule.title}"?',
                                   ),
                                   actions: [
                                     TextButton(
@@ -198,7 +196,10 @@ class _RulesViewState extends State<RulesView> {
                                 ),
                               );
                               if (confirm == true) {
-                                await ruleDoc.reference.delete();
+                                await _familyService.deleteRule(
+                                  familyId: widget.user.uid,
+                                  ruleId: rule.id,
+                                );
                               }
                             },
                           ),

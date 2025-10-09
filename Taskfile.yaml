@@ -113,7 +113,7 @@ tasks:
   serve:android:
     desc: Serve the application on Android
     cmds:
-      - flutter run -d android
+      - flutter run -d 'SM S901U'
 
   serve:ios:
     desc: Serve the application on iOS

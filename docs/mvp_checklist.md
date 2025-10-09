@@ -11,10 +11,10 @@ The following steps outline the remaining work to reach the MVP (Minimum Viable 
   - [x] Real-time updates for active timers and session logging
   - [x] Family member management (add, edit, delete child profiles and accounts)
 
-- [ ] **Rules Management**
-  - [ ] CRUD for family rules (parent)
-  - [ ] Assign rules to children
-  - [ ] Children can view their assigned rules
+- [x] **Rules Management**
+  - [x] CRUD for family rules (parent)
+  - [x] Assign rules to children
+  - [x] Children can view their assigned rules
 
 - [ ] **Rewards & Chores**
   - [ ] CRUD for chores and rewards (parent)

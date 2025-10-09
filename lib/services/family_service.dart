@@ -114,6 +114,65 @@ class FamilyService {
         );
   }
 
+  /// Add a new rule to a family.
+  Future<void> addRule({
+    required String familyId,
+    required String title,
+    required String description,
+    List<String>? assignedChildren,
+    Map<String, dynamic>? ageRange,
+    required String createdBy,
+  }) async {
+    await _firestore
+        .collection('families')
+        .doc(familyId)
+        .collection('rules')
+        .add({
+          'title': title,
+          'description': description,
+          'age_range': ageRange,
+          'assigned_children': assignedChildren ?? [],
+          'created_at': FieldValue.serverTimestamp(),
+          'created_by': createdBy,
+        });
+  }
+
+  /// Update an existing rule.
+  Future<void> updateRule({
+    required String familyId,
+    required String ruleId,
+    required String title,
+    required String description,
+    List<String>? assignedChildren,
+    Map<String, dynamic>? ageRange,
+  }) async {
+    final updateData = {
+      'title': title,
+      'description': description,
+      if (assignedChildren != null) 'assigned_children': assignedChildren,
+      if (ageRange != null) 'age_range': ageRange,
+    };
+    await _firestore
+        .collection('families')
+        .doc(familyId)
+        .collection('rules')
+        .doc(ruleId)
+        .update(updateData);
+  }
+
+  /// Delete a rule from a family.
+  Future<void> deleteRule({
+    required String familyId,
+    required String ruleId,
+  }) async {
+    await _firestore
+        .collection('families')
+        .doc(familyId)
+        .collection('rules')
+        .doc(ruleId)
+        .delete();
+  }
+
   /// Create a new family document if it does not exist, with parent_ids and created_at.
   Future<void> createFamilyIfNotExists({
     required String familyId,

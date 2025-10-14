@@ -36,9 +36,9 @@ The following steps outline the remaining work to reach the MVP (Minimum Viable 
   - [x] Smooth navigation between authentication, home, and feature screens
   - [x] Onboarding for new families/parents
 
-- [ ] **Testing & Polish**
+- [x] **Testing & Polish**
   - [x] Unit/widget tests for all major features (services)
-  - [ ] UI/UX polish and accessibility review
+  - [x] UI/UX polish and accessibility review
 
 ---
 

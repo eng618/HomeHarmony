@@ -1,8 +1,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/chore_model.dart';
 import '../utils/chore_providers.dart';
+import '../services/activity_log_service.dart';
+import '../models/activity_log_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChildChoresView extends ConsumerWidget {
   final String familyId;
@@ -43,6 +47,18 @@ class ChildChoresView extends ConsumerWidget {
                         onPressed: () {
                           final choreService = ref.read(choreServiceProvider);
                           choreService.updateChore(familyId, chore.id, {'completed': true});
+
+                          final activityLogService = ref.read(activityLogServiceProvider);
+                          final user = FirebaseAuth.instance.currentUser;
+                          final log = ActivityLog(
+                            id: '',
+                            timestamp: Timestamp.now(),
+                            userId: user!.uid,
+                            type: 'chore',
+                            description: '${chore.title} chore completed.',
+                            familyId: familyId,
+                          );
+                          activityLogService.addActivityLog(log);
                         },
                         child: const Text('Complete'),
                       ),

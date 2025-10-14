@@ -1,10 +1,13 @@
-// This file is now a view for the Rewards tab in the Behavior screen.
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/family_service.dart';
 import '../../models/child_profile.dart';
 import '../../services/screen_time_service.dart';
+import '../../services/activity_log_service.dart';
+import '../../models/activity_log_model.dart';
+import '../../utils/activity_log_providers.dart';
 
 class RewardsView extends ConsumerStatefulWidget {
   final User user;
@@ -47,6 +50,20 @@ class _RewardsViewState extends ConsumerState<RewardsView> {
         minutes: minutes,
         reason: 'manual_reward',
       );
+
+      final activityLogService = ref.read(activityLogServiceProvider);
+      final user = FirebaseAuth.instance.currentUser;
+      final child = (await FamilyService().childrenStream(widget.user.uid).first).firstWhere((c) => c.id == selectedChildId);
+      final log = ActivityLog(
+        id: '',
+        timestamp: Timestamp.now(),
+        userId: user!.uid,
+        type: 'reward',
+        description: 'Added $minutes minutes to ${child.name}.',
+        familyId: widget.user.uid,
+      );
+      await activityLogService.addActivityLog(log);
+
       setState(() {
         _infoMessage = 'Added $minutes minutes to child.';
         _minutesController.clear();

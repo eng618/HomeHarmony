@@ -8,6 +8,8 @@ import '../utils/chore_providers.dart';
 import '../widgets/chore_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/screen_time_service.dart';
+import '../services/activity_log_service.dart';
+import '../models/activity_log_model.dart';
 
 class ChoresView extends ConsumerWidget {
   final String familyId;
@@ -72,6 +74,7 @@ class ChoresView extends ConsumerWidget {
               icon: const Icon(Icons.add),
               label: const Text('Add Chore'),
               onPressed: () => _showChoreForm(context, ref),
+              semanticLabel: 'Add a new chore',
             ),
           ],
         ),
@@ -118,6 +121,18 @@ class ChoresView extends ConsumerWidget {
                                 for (var childId in chore.assignedChildren) {
                                   screenTimeService.addScreenTime(familyId, childId, chore.value);
                                 }
+
+                                final activityLogService = ref.read(activityLogServiceProvider);
+                                final user = FirebaseAuth.instance.currentUser;
+                                final log = ActivityLog(
+                                  id: '',
+                                  timestamp: Timestamp.now(),
+                                  userId: user!.uid,
+                                  type: 'chore',
+                                  description: '${chore.title} chore approved.',
+                                  familyId: familyId,
+                                );
+                                activityLogService.addActivityLog(log);
                               },
                               child: const Text('Approve'),
                             ),
@@ -126,6 +141,18 @@ class ChoresView extends ConsumerWidget {
                               onPressed: () {
                                 final choreService = ref.read(choreServiceProvider);
                                 choreService.updateChore(familyId, chore.id, {'completed': false});
+
+                                final activityLogService = ref.read(activityLogServiceProvider);
+                                final user = FirebaseAuth.instance.currentUser;
+                                final log = ActivityLog(
+                                  id: '',
+                                  timestamp: Timestamp.now(),
+                                  userId: user!.uid,
+                                  type: 'chore',
+                                  description: '${chore.title} chore rejected.',
+                                  familyId: familyId,
+                                );
+                                activityLogService.addActivityLog(log);
                               },
                               child: const Text('Reject'),
                             ),

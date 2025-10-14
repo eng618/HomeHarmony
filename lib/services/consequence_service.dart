@@ -1,11 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/consequence_model.dart';
+import '../models/activity_log_model.dart';
+import 'activity_log_service.dart';
 
 /// Service for managing consequences in Firestore for a family.
 class ConsequenceService {
   final FirebaseFirestore _firestore;
-  ConsequenceService({FirebaseFirestore? firestore})
-    : _firestore = firestore ?? FirebaseFirestore.instance;
+  final ActivityLogService _activityLogService;
+
+  ConsequenceService({FirebaseFirestore? firestore, ActivityLogService? activityLogService})
+      : _firestore = firestore ?? FirebaseFirestore.instance,
+        _activityLogService = activityLogService ?? ActivityLogService();
 
   /// Stream all consequences for a family.
   Stream<List<Consequence>> consequencesStream(String familyId) {
@@ -44,6 +49,16 @@ class ConsequenceService {
         .doc(familyId)
         .collection('consequences')
         .add(consequence.toFirestore());
+
+    final log = ActivityLog(
+      id: '',
+      timestamp: Timestamp.now(),
+      userId: consequence.createdBy!,
+      type: 'consequence',
+      description: '${consequence.title} consequence created.',
+      familyId: familyId,
+    );
+    await _activityLogService.addActivityLog(log);
   }
 
   /// Update an existing consequence.

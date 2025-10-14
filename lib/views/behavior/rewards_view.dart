@@ -41,7 +41,7 @@ class _RewardsViewState extends ConsumerState<RewardsView> {
     });
     try {
       final service = ScreenTimeService();
-      await service.addRewardToBucket(
+      await service.addScreenTime(
         familyId: widget.user.uid,
         childId: selectedChildId!,
         minutes: minutes,

@@ -16,12 +16,12 @@ The following steps outline the remaining work to reach the MVP (Minimum Viable 
   - [x] Assign rules to children
   - [x] Children can view their assigned rules
 
-- [ ] **Rewards & Chores**
-  - [ ] CRUD for chores and rewards (parent)
-  - [ ] Assign chores to children
-  - [ ] Children can mark chores as complete
-  - [ ] Parent can approve/reject completions and award screen time
-  - [ ] Parent can add screen time to child's bucket as a reward
+- [x] **Rewards & Chores**
+  - [x] CRUD for chores and rewards (parent)
+  - [x] Assign chores to children
+  - [x] Children can mark chores as complete
+  - [x] Parent can approve/reject completions and award screen time
+  - [x] Parent can add screen time to child's bucket as a reward
 
 - [ ] **Consequences**
   - [ ] CRUD for consequences (parent)

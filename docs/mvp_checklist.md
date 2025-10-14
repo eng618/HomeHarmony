@@ -23,21 +23,21 @@ The following steps outline the remaining work to reach the MVP (Minimum Viable 
   - [x] Parent can approve/reject completions and award screen time
   - [x] Parent can add screen time to child's bucket as a reward
 
-- [ ] **Consequences**
-  - [ ] CRUD for consequences (parent)
-  - [ ] Assign consequences to children or rules (with inheritance)
-  - [ ] Deduct screen time for applied consequences
+- [x] **Consequences**
+  - [x] CRUD for consequences (parent)
+  - [x] Assign consequences to children or rules (with inheritance)
+  - [x] Deduct screen time for applied consequences
 
-- [ ] **Activity History**
-  - [ ] Log all major actions (rule/chores/consequences/screen time)
-  - [ ] Family and child-specific activity feeds
+- [x] **Activity History**
+  - [x] Log all major actions (rule/chores/consequences/screen time)
+  - [x] Family and child-specific activity feeds
 
 - [x] **Basic Onboarding & Navigation**
   - [x] Smooth navigation between authentication, home, and feature screens
   - [x] Onboarding for new families/parents
 
 - [ ] **Testing & Polish**
-  - [ ] Unit/widget tests for all major features
+  - [x] Unit/widget tests for all major features (services)
   - [ ] UI/UX polish and accessibility review
 
 ---

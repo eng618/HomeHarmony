@@ -8,7 +8,8 @@ import '../utils/chore_providers.dart';
 import '../widgets/chore_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/screen_time_service.dart';
-import '../services/activity_log_service.dart';
+import '../utils/activity_log_providers.dart';
+import '../utils/screen_time_providers.dart';
 import '../models/activity_log_model.dart';
 
 class ChoresView extends ConsumerWidget {
@@ -74,7 +75,6 @@ class ChoresView extends ConsumerWidget {
               icon: const Icon(Icons.add),
               label: const Text('Add Chore'),
               onPressed: () => _showChoreForm(context, ref),
-              semanticLabel: 'Add a new chore',
             ),
           ],
         ),
@@ -102,7 +102,7 @@ class ChoresView extends ConsumerWidget {
                             Text(
                               'Assigned to: ${chore.assignedChildren.map((childId) => children.firstWhere(
                                 (c) => c.id == childId,
-                                orElse: () => ChildProfile(id: childId, name: 'Unknown', parentId: '', avatar: ''),
+                                orElse: () => ChildProfile(id: childId, name: 'Unknown', parentId: '', profilePicture: '', age: 0, profileType: 'local'),
                               ).name).join(", ")}',
                             ),
                            if (chore.completed)
@@ -116,10 +116,10 @@ class ChoresView extends ConsumerWidget {
                             ElevatedButton(
                               onPressed: () {
                                 final choreService = ref.read(choreServiceProvider);
-                                final screenTimeService = ScreenTimeService();
+                                final screenTimeService = ref.read(screenTimeServiceProvider);
                                 choreService.updateChore(familyId, chore.id, {'approved': true});
                                 for (var childId in chore.assignedChildren) {
-                                  screenTimeService.addScreenTime(familyId, childId, chore.value);
+                                  screenTimeService.addScreenTime(familyId: familyId, childId: childId, minutes: chore.value);
                                 }
 
                                 final activityLogService = ref.read(activityLogServiceProvider);

@@ -2,10 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/chore_model.dart';
 import '../utils/chore_providers.dart';
-import '../services/activity_log_service.dart';
 import '../models/activity_log_model.dart';
+import '../utils/activity_log_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ChildChoresView extends ConsumerWidget {

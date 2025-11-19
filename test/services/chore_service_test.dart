@@ -6,10 +6,16 @@ import 'package:home_harmony/services/chore_service.dart';
 import 'package:home_harmony/services/activity_log_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:home_harmony/models/activity_log_model.dart';
 
 class MockActivityLogService extends Mock implements ActivityLogService {}
+class FakeActivityLog extends Fake implements ActivityLog {}
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(FakeActivityLog());
+  });
+
   group('ChoreService', () {
     late FakeFirebaseFirestore firestore;
     late ChoreService choreService;

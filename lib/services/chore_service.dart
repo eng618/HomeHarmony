@@ -41,7 +41,7 @@ class ChoreService {
   }
 
   Future<void> addChore(String familyId, Chore chore) async {
-    final ref = await _firestore
+    await _firestore
         .collection('families')
         .doc(familyId)
         .collection('chores')

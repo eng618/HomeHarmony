@@ -7,7 +7,8 @@ import '../models/child_profile.dart';
 import '../models/rule_model.dart';
 import '../utils/consequence_providers.dart';
 import '../services/screen_time_service.dart';
-import '../services/activity_log_service.dart';
+import '../utils/screen_time_providers.dart';
+import '../utils/activity_log_providers.dart';
 import '../models/activity_log_model.dart';
 
 /// Top-level view for listing and managing consequences for a family.
@@ -45,7 +46,7 @@ class ConsequencesView extends ConsumerWidget {
                 .toList(),
             onChanged: (childId) {
               if (childId != null) {
-                final screenTimeService = ScreenTimeService();
+                final screenTimeService = ref.read(screenTimeServiceProvider);
                 final consequenceService = ref.read(consequenceServiceProvider);
 
                 screenTimeService.addScreenTime(
@@ -124,7 +125,7 @@ class ConsequencesView extends ConsumerWidget {
                               ).title).join(", ")}',
                             ),
                           if (c.appliedTo != null)
-                            Text('Applied to: ${children.firstWhere((child) => child.id == c.appliedTo, orElse: () => ChildProfile(id: c.appliedTo!, name: 'Unknown', parentId: '', avatar: '')).name}'),
+                            Text('Applied to: ${children.firstWhere((child) => child.id == c.appliedTo, orElse: () => ChildProfile(id: c.appliedTo!, name: 'Unknown', parentId: '', profilePicture: '', age: 0, profileType: 'local')).name}'),
                         ],
                       ),
                       trailing: Row(
@@ -134,7 +135,6 @@ class ConsequencesView extends ConsumerWidget {
                             icon: const Icon(Icons.send),
                             tooltip: 'Apply',
                             onPressed: () => _applyConsequence(context, ref, c),
-                            semanticLabel: 'Apply this consequence to a child',
                           ),
                           IconButton(
                             icon: const Icon(Icons.edit),

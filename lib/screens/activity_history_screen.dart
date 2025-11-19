@@ -41,7 +41,7 @@ class _ActivityHistoryScreenState extends ConsumerState<ActivityHistoryScreen> {
                   }
                   final children = snapshot.data!;
                   return DropdownButtonFormField<String>(
-                    value: _selectedChildId,
+                    initialValue: _selectedChildId,
                     hint: const Text('Filter by child'),
                     items: [
                       const DropdownMenuItem(value: null, child: Text('All')),

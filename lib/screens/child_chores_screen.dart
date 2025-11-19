@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../views/child_chores_view.dart';
-import '../models/chore_model.dart';
-import '../services/chore_service.dart';
 import '../utils/user_provider.dart';
 
 class ChildChoresScreen extends ConsumerStatefulWidget {
@@ -16,8 +14,6 @@ class ChildChoresScreen extends ConsumerStatefulWidget {
 }
 
 class _ChildChoresScreenState extends ConsumerState<ChildChoresScreen> {
-  final ChoreService _choreService = ChoreService();
-
   @override
   Widget build(BuildContext context) {
     final userModelAsync = ref.watch(userProvider);

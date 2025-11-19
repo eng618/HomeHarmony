@@ -40,6 +40,12 @@ The following steps outline the remaining work to reach the MVP (Minimum Viable 
   - [x] Unit/widget tests for all major features (services)
   - [x] UI/UX polish and accessibility review
 
+## Validation steps
+
+- Inbetween all steps ensure `task validate` is passing which run the flutter analize and flutter test commands.
+- Ensure all documentations is kept upto date with any changes or modifications
+- Ensure the firebase rules are set appropriately for each feature. (ensuring different permisions for parents and children withing a family)
+
 ---
 
 **We will update this section as features are completed. When all boxes are checked, the app is ready for MVP launch!**

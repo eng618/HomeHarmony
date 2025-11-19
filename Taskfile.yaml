@@ -86,7 +86,9 @@ tasks:
   serve:web:
     desc: Serve the application locally
     cmds:
-      - flutter run -d chrome
+      - task: bws:run
+        vars:
+          CLI_ARGS: -d chrome
 
   serve:web:clean:
     desc: Clean and serve the application
@@ -98,27 +100,37 @@ tasks:
   serve:linux:
     desc: Serve the application on Linux
     cmds:
-      - flutter run -d linux
+      - task: bws:run
+        vars:
+          CLI_ARGS: -d linux
 
   serve:windows:
     desc: Serve the application on Windows
     cmds:
-      - flutter run -d windows
+      - task: bws:run
+        vars:
+          CLI_ARGS: -d windows
 
   serve:macos:
     desc: Serve the application on macOS
     cmds:
-      - flutter run -d macos
+      - task: bws:run
+        vars:
+          CLI_ARGS: -d macos
 
   serve:android:
     desc: Serve the application on Android
     cmds:
-      - flutter run -d 'SM S901U'
+      - task: bws:run
+        vars:
+          CLI_ARGS: -d 'SM S901U'
 
   serve:ios:
     desc: Serve the application on iOS
     cmds:
-      - flutter run -d ios
+      - task: bws:run
+        vars:
+          CLI_ARGS: -d ios
 
 # -----------------------------------------------------------------------------
 # Deploy
@@ -195,6 +207,50 @@ tasks:
       - flutter pub upgrade
 
 # -----------------------------------------------------------------------------
+# Bitwarden
+
+  debug:bws:
+    desc: Debug and validate Bitwarden secrets fetching
+    vars:
+      BWS_PROJECT_ID: "f79b2903-d932-49dd-8986-b2ea004ba75f"
+    cmds:
+      - cmd: |
+          echo "🔐 Validating Bitwarden secrets for project {{.BWS_PROJECT_ID}}..."
+          bws run --project-id {{.BWS_PROJECT_ID}} -- sh -c '
+          echo "✅ Successfully authenticated with Bitwarden"
+          echo ""
+          echo "🔑 Available Firebase secrets:"
+          echo "FIREBASE_API_KEY: $FIREBASE_API_KEY"
+          echo "FIREBASE_AUTH_DOMAIN: $FIREBASE_AUTH_DOMAIN"
+          echo "FIREBASE_PROJECT_ID: $FIREBASE_PROJECT_ID"
+          echo "FIREBASE_STORAGE_BUCKET: $FIREBASE_STORAGE_BUCKET"
+          echo "FIREBASE_MESSAGING_SENDER_ID: $FIREBASE_MESSAGING_SENDER_ID"
+          echo "FIREBASE_APP_ID: $FIREBASE_APP_ID"
+          echo "FIREBASE_MEASUREMENT_ID: $FIREBASE_MEASUREMENT_ID"
+          echo ""
+          echo "✅ All secrets fetched successfully!"
+          '
+        silent: true
+
+  bws:run:
+    desc: Run a command with secrets from Bitwarden
+    vars:
+      BWS_PROJECT_ID: "f79b2903-d932-49dd-8986-b2ea004ba75f"
+    cmds:
+      - cmd: |
+          echo "🔐 Running Flutter with Bitwarden secrets for project {{.BWS_PROJECT_ID}}..."
+          bws run --project-id {{.BWS_PROJECT_ID}} -- sh -c '
+          flutter run {{.CLI_ARGS}} \
+          # --dart-define=FIREBASE_API_KEY="$FIREBASE_API_KEY" \
+          # --dart-define=FIREBASE_AUTH_DOMAIN="$FIREBASE_AUTH_DOMAIN" \
+          # --dart-define=FIREBASE_PROJECT_ID="$FIREBASE_PROJECT_ID" \
+          # --dart-define=FIREBASE_STORAGE_BUCKET="$FIREBASE_STORAGE_BUCKET" \
+          # --dart-define=FIREBASE_MESSAGING_SENDER_ID="$FIREBASE_MESSAGING_SENDER_ID" \
+          # --dart-define=FIREBASE_APP_ID="$FIREBASE_APP_ID" \
+          # --dart-define=FIREBASE_MEASUREMENT_ID="$FIREBASE_MEASUREMENT_ID"'
+        silent: true
+
+# -----------------------------------------------------------------------------
 # Firebase
 
   firebase:login:
@@ -241,4 +297,3 @@ tasks:
     desc: Deploy all Firebase services
     cmds:
       - firebase deploy
-

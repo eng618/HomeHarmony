@@ -13,7 +13,7 @@ class ChoresViewTab extends StatefulWidget {
   State<ChoresViewTab> createState() => _ChoresViewTabState();
 }
 
-class _ChoresViewTabState extends State<ChooresViewTab> {
+class _ChoresViewTabState extends State<ChoresViewTab> {
   List<ChildProfile> _children = [];
   bool _loading = true;
 

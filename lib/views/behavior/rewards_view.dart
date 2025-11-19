@@ -5,9 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/family_service.dart';
 import '../../models/child_profile.dart';
 import '../../services/screen_time_service.dart';
-import '../../services/activity_log_service.dart';
 import '../../models/activity_log_model.dart';
 import '../../utils/activity_log_providers.dart';
+import '../../utils/screen_time_providers.dart';
 
 class RewardsView extends ConsumerStatefulWidget {
   final User user;
@@ -43,7 +43,7 @@ class _RewardsViewState extends ConsumerState<RewardsView> {
       _infoMessage = null;
     });
     try {
-      final service = ScreenTimeService();
+      final service = ref.read(screenTimeServiceProvider);
       await service.addScreenTime(
         familyId: widget.user.uid,
         childId: selectedChildId!,

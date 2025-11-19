@@ -10,6 +10,16 @@ class FamilyService {
   FamilyService({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
 
+  Future<List<Map<String, dynamic>>> getChildren(String familyId) async {
+    final snapshot = await _firestore
+        .collection('families')
+        .doc(familyId)
+        .collection('children')
+        .orderBy('created_at', descending: false)
+        .get();
+    return snapshot.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
+  }
+
   /// Add a new child profile to a family.
   Future<void> addChildProfile({
     required String familyId,

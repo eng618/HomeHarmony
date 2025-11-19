@@ -5,26 +5,23 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../../widgets/rule_dialog.dart';
 import '../../../services/family_service.dart';
 import '../../../models/rule_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../utils/family_providers.dart';
 
-class RulesView extends StatefulWidget {
+class RulesView extends ConsumerStatefulWidget {
   final User user;
   const RulesView({super.key, required this.user});
 
   @override
-  State<RulesView> createState() => _RulesViewState();
+  ConsumerState<RulesView> createState() => _RulesViewState();
 }
 
-class _RulesViewState extends State<RulesView> {
-  final FamilyService _familyService = FamilyService();
+class _RulesViewState extends ConsumerState<RulesView> {
+  // FamilyService is now accessed via provider
 
   Future<List<Map<String, dynamic>>> _fetchChildren() async {
-    final snapshot = await FirebaseFirestore.instance
-        .collection('families')
-        .doc(widget.user.uid)
-        .collection('children')
-        .orderBy('created_at', descending: false)
-        .get();
-    return snapshot.docs.map((doc) => {'id': doc.id, ...doc.data()}).toList();
+    final familyService = ref.read(familyServiceProvider);
+    return familyService.getChildren(widget.user.uid);
   }
 
   Future<void> _addOrEditRule({Rule? rule}) async {
@@ -53,8 +50,9 @@ class _RulesViewState extends State<RulesView> {
               try {
                 Navigator.of(ctx).pop();
 
+                final familyService = ref.read(familyServiceProvider);
                 if (rule == null) {
-                  await _familyService.addRule(
+                  await familyService.addRule(
                     familyId: widget.user.uid,
                     title: title,
                     description: desc,
@@ -62,7 +60,7 @@ class _RulesViewState extends State<RulesView> {
                     createdBy: widget.user.uid,
                   );
                 } else {
-                  await _familyService.updateRule(
+                  await familyService.updateRule(
                     familyId: widget.user.uid,
                     ruleId: rule.id,
                     title: title,
@@ -98,7 +96,7 @@ class _RulesViewState extends State<RulesView> {
           const Text('Rules:', style: TextStyle(fontWeight: FontWeight.bold)),
           Expanded(
             child: StreamBuilder<List<Rule>>(
-              stream: _familyService.rulesStream(widget.user.uid),
+              stream: ref.watch(familyServiceProvider).rulesStream(widget.user.uid),
               builder: (context, ruleSnapshot) {
                 if (ruleSnapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -196,7 +194,8 @@ class _RulesViewState extends State<RulesView> {
                                 ),
                               );
                               if (confirm == true) {
-                                await _familyService.deleteRule(
+                                final familyService = ref.read(familyServiceProvider);
+                                await familyService.deleteRule(
                                   familyId: widget.user.uid,
                                   ruleId: rule.id,
                                 );

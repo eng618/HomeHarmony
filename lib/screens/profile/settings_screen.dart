@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/auth_service.dart';
 import '../../utils/auth_providers.dart';
+import '../../views/settings/privacy_policy_view.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -100,10 +101,9 @@ class SettingsScreen extends ConsumerWidget {
             leading: Icon(Icons.privacy_tip, color: Colors.grey[700]),
             title: const Text('Privacy Policy'),
             onTap: () {
-              // TODO: Open privacy policy link
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Privacy Policy not implemented.'),
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const PrivacyPolicyView(),
                 ),
               );
             },

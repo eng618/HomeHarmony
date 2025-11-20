@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/auth_form.dart';
 import '../services/auth_service.dart';
+import 'settings/privacy_policy_view.dart';
 
 /// View for parent sign in.
 class SignInView extends StatelessWidget {
@@ -27,6 +28,16 @@ class SignInView extends StatelessWidget {
               TextButton(
                 onPressed: onSwitch,
                 child: const Text("Don't have an account? Create one"),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const PrivacyPolicyView(),
+                    ),
+                  );
+                },
+                child: const Text('Privacy Policy'),
               ),
             ],
           ),

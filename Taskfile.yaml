@@ -238,16 +238,10 @@ tasks:
       BWS_PROJECT_ID: "f79b2903-d932-49dd-8986-b2ea004ba75f"
     cmds:
       - cmd: |
+          set -x
+          export CHROME_EXECUTABLE=/snap/bin/chromium
           echo "🔐 Running Flutter with Bitwarden secrets for project {{.BWS_PROJECT_ID}}..."
-          bws run --project-id {{.BWS_PROJECT_ID}} -- sh -c '
-          flutter run {{.CLI_ARGS}} \
-          # --dart-define=FIREBASE_API_KEY="$FIREBASE_API_KEY" \
-          # --dart-define=FIREBASE_AUTH_DOMAIN="$FIREBASE_AUTH_DOMAIN" \
-          # --dart-define=FIREBASE_PROJECT_ID="$FIREBASE_PROJECT_ID" \
-          # --dart-define=FIREBASE_STORAGE_BUCKET="$FIREBASE_STORAGE_BUCKET" \
-          # --dart-define=FIREBASE_MESSAGING_SENDER_ID="$FIREBASE_MESSAGING_SENDER_ID" \
-          # --dart-define=FIREBASE_APP_ID="$FIREBASE_APP_ID" \
-          # --dart-define=FIREBASE_MEASUREMENT_ID="$FIREBASE_MEASUREMENT_ID"'
+          bws run --project-id {{.BWS_PROJECT_ID}} -- ./scripts/run_web.sh {{.CLI_ARGS}}
         silent: true
 
 # -----------------------------------------------------------------------------

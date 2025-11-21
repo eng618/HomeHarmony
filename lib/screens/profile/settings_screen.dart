@@ -153,75 +153,97 @@ class SettingsScreen extends ConsumerWidget {
             },
           ),
           const SizedBox(height: 32),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: ElevatedButton.icon(
-              icon: const Icon(Icons.delete_forever),
-              label: const Text('Delete My Account'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.error,
-                foregroundColor: Colors.white,
-                minimumSize: const Size.fromHeight(48),
-              ),
-              onPressed: () async {
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Delete Account'),
-                    content: const Text(
-                      'Are you sure you want to delete your account and all associated data? This action is irreversible.',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(ctx).pop(false),
-                        child: const Text('Cancel'),
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.error,
-                        ),
-                        onPressed: () => Navigator.of(ctx).pop(true),
-                        child: const Text('Delete'),
-                      ),
-                    ],
-                  ),
-                );
-                // After the confirmation dialog, check if the widget is still mounted
-                if (confirmed == true) {
-                  if (!context.mounted) return;
-                  // Show loading dialog
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (ctx) =>
-                        const Center(child: CircularProgressIndicator()),
-                  );
-                  final result = await AuthService.deleteAccount();
-                  // After deleting the account, check if the widget is still mounted
-                  // before trying to interact with the Navigator or ScaffoldMessenger.
-                  if (!context.mounted) return;
-                  Navigator.of(context).pop(); // Remove loading dialog
-                  if (result == null) {
-                    // Account deleted, pop to login screen
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                    // After popUntil, this screen's context is no longer valid.
-                    // Check mounted status again before showing a SnackBar.
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Account deleted successfully.'),
-                      ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Account deletion failed: $result'),
+          const SizedBox(height: 32),
+          Consumer(
+            builder: (context, ref, child) {
+              final roleAsync = ref.watch(userRoleProvider);
+              return roleAsync.when(
+                data: (role) {
+                  if (role == 'child') {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        'To delete this account, please contact your family organizer.',
+                        style: TextStyle(color: Colors.grey[600]),
+                        textAlign: TextAlign.center,
                       ),
                     );
                   }
-                }
-              },
-            ),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.delete_forever),
+                      label: const Text('Delete My Account'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size.fromHeight(48),
+                      ),
+                      onPressed: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Delete Account'),
+                            content: const Text(
+                              'Are you sure you want to delete your account and all associated data? This action is irreversible.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(false),
+                                child: const Text('Cancel'),
+                              ),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).colorScheme.error,
+                                ),
+                                onPressed: () => Navigator.of(ctx).pop(true),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        );
+                        // After the confirmation dialog, check if the widget is still mounted
+                        if (confirmed == true) {
+                          if (!context.mounted) return;
+                          // Show loading dialog
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (ctx) =>
+                                const Center(child: CircularProgressIndicator()),
+                          );
+                          final result = await AuthService.deleteAccount();
+                          // After deleting the account, check if the widget is still mounted
+                          // before trying to interact with the Navigator or ScaffoldMessenger.
+                          if (!context.mounted) return;
+                          Navigator.of(context).pop(); // Remove loading dialog
+                          if (result == null) {
+                            // Account deleted, pop to login screen
+                            Navigator.of(context).popUntil((route) => route.isFirst);
+                            // After popUntil, this screen's context is no longer valid.
+                            // Check mounted status again before showing a SnackBar.
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Account deleted successfully.'),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Account deletion failed: $result'),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, __) => const SizedBox.shrink(),
+              );
+            },
           ),
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import '../services/auth_service.dart';
@@ -9,6 +10,19 @@ import '../services/auth_service.dart';
 /// This is the primary auth state provider that should be used throughout the app.
 final authStateProvider = StreamProvider<User?>((ref) {
   return FirebaseAuth.instance.authStateChanges();
+});
+
+/// Provides the role of the current user ('parent' or 'child').
+final userRoleProvider = FutureProvider<String?>((ref) async {
+  final user = ref.watch(authStateProvider).value;
+  if (user == null) return null;
+  
+  try {
+    final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    return doc.data()?['role'] as String?;
+  } catch (e) {
+    return null;
+  }
 });
 
 /// Auth controller that manages authentication operations and loading states.

@@ -5,7 +5,7 @@ import '../screens/family_members_screen.dart';
 import '../screens/screen_time_screen.dart';
 import '../screens/activity_history_screen.dart';
 import '../screens/profile/profile_screen.dart';
-import '../screens/child_chores_screen.dart';
+import '../screens/child_chore_dashboard.dart';
 import 'behavior_screen.dart';
 import '../utils/user_provider.dart';
 
@@ -84,7 +84,7 @@ class _MainShellState extends ConsumerState<MainShell> {
 
         final List<Widget> screens = isChild
             ? [
-                ChildChoresScreen(user: widget.user),
+                const ChildChoreDashboard(),
                 ScreenTimeScreen(familyId: userModel.parent ?? widget.user.uid),
                 ActivityHistoryScreen(),
                 ProfileScreen(user: widget.user),

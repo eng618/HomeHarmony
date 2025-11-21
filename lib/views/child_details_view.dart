@@ -9,6 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_harmony/screens/screen_time_screen.dart';
 import '../screens/child_dashboard_screen.dart';
 import '../controllers/child_details_controller.dart';
+import '../utils/chore_providers.dart';
+import '../models/chore_model.dart';
 import '../models/child_details.dart';
 import '../services/auth_service.dart';
 
@@ -92,6 +94,11 @@ class _ChildDetailsViewState extends ConsumerState<ChildDetailsView> {
               children: [
                 _ProfileSection(
                   details: details,
+                  familyId: widget.familyId,
+                  childId: widget.childId,
+                ),
+                const SizedBox(height: 24),
+                _ChoresSection(
                   familyId: widget.familyId,
                   childId: widget.childId,
                 ),
@@ -300,6 +307,7 @@ class _ProfileSection extends StatelessWidget {
       // Firebase will have automatically signed in the child
       // Wait a moment for the auth state to settle
       await Future.delayed(const Duration(seconds: 1));
+      if (!context.mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -565,6 +573,66 @@ class _ExpandablePanel extends StatelessWidget {
         ),
         expandedCrossAxisAlignment: CrossAxisAlignment.start,
         children: children,
+      ),
+    );
+  }
+}
+
+class _ChoresSection extends ConsumerWidget {
+  final String familyId;
+  final String childId;
+
+  const _ChoresSection({
+    required this.familyId,
+    required this.childId,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final choresAsync = ref.watch(childChoresProvider((familyId, childId)));
+
+    return _ExpandablePanel(
+      title: 'Assigned Chores',
+      icon: Icons.task_alt,
+      children: choresAsync.when(
+        data: (chores) {
+          if (chores.isEmpty) {
+            return [const ListTile(title: Text('No chores assigned.'))];
+          }
+          return chores.map((chore) {
+            return ListTile(
+              title: Text(
+                chore.title,
+                style: TextStyle(
+                  decoration: chore.completed ? TextDecoration.lineThrough : null,
+                ),
+              ),
+              subtitle: chore.completed && !chore.approved
+                  ? const Text(
+                      'Waiting for approval',
+                      style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                    )
+                  : Text('Value: ${chore.value} min'),
+              trailing: chore.completed
+                  ? (chore.approved
+                      ? const Icon(Icons.check_circle, color: Colors.green)
+                      : ElevatedButton(
+                          onPressed: () {
+                            final choreService = ref.read(choreServiceProvider);
+                            choreService.updateChore(familyId, chore.id, {'approved': true});
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text('Approve'),
+                        ))
+                  : const Icon(Icons.radio_button_unchecked, color: Colors.grey),
+            );
+          }).toList();
+        },
+        loading: () => [const Center(child: CircularProgressIndicator())],
+        error: (e, _) => [ListTile(title: Text('Error loading chores: $e'))],
       ),
     );
   }

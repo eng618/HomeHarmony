@@ -41,7 +41,10 @@ class ChildChoresView extends ConsumerWidget {
                   ],
                 ),
                 trailing: chore.completed
-                    ? const Icon(Icons.check_circle, color: Colors.green)
+                    ? (chore.approved
+                        ? const Icon(Icons.check_circle, color: Colors.green)
+                        : const Text('Waiting for Approval',
+                            style: TextStyle(color: Colors.orange, fontSize: 12)))
                     : ElevatedButton(
                         onPressed: () {
                           final choreService = ref.read(choreServiceProvider);
@@ -49,15 +52,17 @@ class ChildChoresView extends ConsumerWidget {
 
                           final activityLogService = ref.read(activityLogServiceProvider);
                           final user = FirebaseAuth.instance.currentUser;
-                          final log = ActivityLog(
-                            id: '',
-                            timestamp: Timestamp.now(),
-                            userId: user!.uid,
-                            type: 'chore',
-                            description: '${chore.title} chore completed.',
-                            familyId: familyId,
-                          );
-                          activityLogService.addActivityLog(log);
+                          if (user != null) {
+                            final log = ActivityLog(
+                              id: '',
+                              timestamp: Timestamp.now(),
+                              userId: user.uid,
+                              type: 'chore',
+                              description: '${chore.title} chore completed.',
+                              familyId: familyId,
+                            );
+                            activityLogService.addActivityLog(log);
+                          }
                         },
                         child: const Text('Complete'),
                       ),

@@ -32,8 +32,8 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Check if platform is supported
-    if (defaultTargetPlatform == TargetPlatform.linux) {
+    // Check if platform is supported (Linux only when not running as web)
+    if (defaultTargetPlatform == TargetPlatform.linux && !kIsWeb) {
       return const MaterialApp(
         title: 'Home Harmony',
         home: UnsupportedPlatformScreen(),

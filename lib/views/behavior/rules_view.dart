@@ -1,9 +1,7 @@
 // This file is now a view for the Rules tab in the Behavior screen.
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../widgets/rule_dialog.dart';
-import '../../../services/family_service.dart';
 import '../../../models/rule_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../utils/family_providers.dart';

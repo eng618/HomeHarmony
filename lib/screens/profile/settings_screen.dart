@@ -205,7 +205,7 @@ class SettingsScreen extends ConsumerWidget {
                     // Account deleted, pop to login screen
                     Navigator.of(context).popUntil((route) => route.isFirst);
                     // After popUntil, this screen's context is no longer valid.
-                    // Check mounted status again before trying to show a SnackBar.
+                    // Check mounted status again before showing a SnackBar.
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

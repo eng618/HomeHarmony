@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../widgets/auth_form.dart';
-import '../services/auth_service.dart';
 import 'settings/privacy_policy_view.dart';
 
 /// View for parent sign up.

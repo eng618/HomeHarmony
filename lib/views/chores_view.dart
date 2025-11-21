@@ -7,7 +7,7 @@ import '../models/child_profile.dart';
 import '../utils/chore_providers.dart';
 import '../widgets/chore_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../services/screen_time_service.dart';
+
 import '../utils/activity_log_providers.dart';
 import '../utils/screen_time_providers.dart';
 import '../models/activity_log_model.dart';

@@ -16,6 +16,39 @@ final userProvider = StreamProvider<UserModel?>((ref) {
     if (userDoc.exists) {
       return UserModel.fromMap(user.uid, userDoc.data()!);
     }
+
+    // For backward compatibility with existing child accounts:
+    // Try to find this user as a child in any family's children collection
+    try {
+      final querySnapshot = await firestore
+          .collectionGroup('children')
+          .where('auth_uid', isEqualTo: user.uid)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final childData = querySnapshot.docs.first.data();
+        final parentId = childData['parent_id'] as String;
+
+        // Create the missing user document for this child
+        await firestore.collection('users').doc(user.uid).set({
+          'email': user.email ?? '',
+          'role': 'child',
+          'parent': parentId,
+        });
+
+        return UserModel(
+          uid: user.uid,
+          email: user.email ?? '',
+          role: 'child',
+          parent: parentId,
+        );
+      }
+    } catch (e) {
+      // Ignore errors during fallback
+    }
+
+    // If no user document exists and no child record found, return null
     return null;
   });
 });

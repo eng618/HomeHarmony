@@ -89,6 +89,14 @@ class AuthService {
         password: password,
       );
       final childUid = cred.user!.uid;
+
+      // Create child profile in users collection for authentication
+      await FirebaseFirestore.instance.collection('users').doc(childUid).set({
+        'email': cred.user!.email,
+        'role': 'child',
+        'parent': parentUid,
+      });
+
       // Add child profile under the parent's family/children collection
       await FirebaseFirestore.instance
           .collection('families')

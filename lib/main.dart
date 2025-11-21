@@ -34,18 +34,25 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Check if platform is supported (Linux only when not running as web)
     if (defaultTargetPlatform == TargetPlatform.linux && !kIsWeb) {
-      return const MaterialApp(
+      return MaterialApp(
         title: 'Home Harmony',
-        home: UnsupportedPlatformScreen(),
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system,
+        home: const UnsupportedPlatformScreen(),
       );
     }
 
     // Watch authentication state to determine which screen to show
     final authState = ref.watch(authStateProvider);
+    // Watch theme mode for dynamic theming
+    final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp(
       title: 'Home Harmony',
-      theme: AppTheme.theme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
       home: authState.when(
         data: (user) => user != null
             ? MainShell(user: user)

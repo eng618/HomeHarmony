@@ -209,7 +209,7 @@ tasks:
 # -----------------------------------------------------------------------------
 # Bitwarden
 
-  debug:bws:
+  bws:debug:
     desc: Debug and validate Bitwarden secrets fetching
     vars:
       BWS_PROJECT_ID: "f79b2903-d932-49dd-8986-b2ea004ba75f"
@@ -219,14 +219,33 @@ tasks:
           bws run --project-id {{.BWS_PROJECT_ID}} -- sh -c '
           echo "✅ Successfully authenticated with Bitwarden"
           echo ""
-          echo "🔑 Available Firebase secrets:"
-          echo "FIREBASE_API_KEY: $FIREBASE_API_KEY"
-          echo "FIREBASE_AUTH_DOMAIN: $FIREBASE_AUTH_DOMAIN"
-          echo "FIREBASE_PROJECT_ID: $FIREBASE_PROJECT_ID"
-          echo "FIREBASE_STORAGE_BUCKET: $FIREBASE_STORAGE_BUCKET"
-          echo "FIREBASE_MESSAGING_SENDER_ID: $FIREBASE_MESSAGING_SENDER_ID"
-          echo "FIREBASE_APP_ID: $FIREBASE_APP_ID"
-          echo "FIREBASE_MEASUREMENT_ID: $FIREBASE_MEASUREMENT_ID"
+          echo "🔑 All available Firebase secrets:"
+          echo "Shared:"
+          echo "  FIREBASE_PROJECT_ID: $FIREBASE_PROJECT_ID"
+          echo "  FIREBASE_STORAGE_BUCKET: $FIREBASE_STORAGE_BUCKET"
+          echo "  FIREBASE_MESSAGING_SENDER_ID: $FIREBASE_MESSAGING_SENDER_ID"
+          echo ""
+          echo "Web:"
+          echo "  FIREBASE_API_KEY: $FIREBASE_API_KEY"
+          echo "  FIREBASE_APP_ID: $FIREBASE_APP_ID"
+          echo "  FIREBASE_AUTH_DOMAIN: $FIREBASE_AUTH_DOMAIN"
+          echo "  FIREBASE_MEASUREMENT_ID: $FIREBASE_MEASUREMENT_ID"
+          echo ""
+          echo "Android:"
+          echo "  FIREBASE_ANDROID_API_KEY: $FIREBASE_ANDROID_API_KEY"
+          echo "  FIREBASE_ANDROID_APP_ID: $FIREBASE_ANDROID_APP_ID"
+          echo ""
+          echo "iOS:"
+          echo "  FIREBASE_IOS_API_KEY: $FIREBASE_IOS_API_KEY"
+          echo "  FIREBASE_IOS_APP_ID: $FIREBASE_IOS_APP_ID"
+          echo ""
+          echo "macOS:"
+          echo "  FIREBASE_MACOS_API_KEY: $FIREBASE_MACOS_API_KEY"
+          echo "  FIREBASE_MACOS_APP_ID: $FIREBASE_MACOS_APP_ID"
+          echo ""
+          echo "Windows:"
+          echo "  FIREBASE_WINDOWS_API_KEY: $FIREBASE_WINDOWS_API_KEY"
+          echo "  FIREBASE_WINDOWS_APP_ID: $FIREBASE_WINDOWS_APP_ID"
           echo ""
           echo "✅ All secrets fetched successfully!"
           '

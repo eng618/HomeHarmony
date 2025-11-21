@@ -51,7 +51,7 @@ app.*.map.json
 lib/firebase_options.dart
 ios/Runner/GoogleService-Info.plist
 android/app/google-services.json
-
+scripts/update_bws_secrets.sh
 
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md

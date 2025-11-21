@@ -2,23 +2,36 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'screen_time_service.dart';
 import '../models/screen_time_models.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthService {
+  static FirebaseAuth? _authInstance;
+  
+  // Allow injection for testing
+  static set authInstance(FirebaseAuth auth) => _authInstance = auth;
+  static FirebaseAuth get _auth => _authInstance ?? FirebaseAuth.instance;
+
   static Future<String?> signIn(String email, String password) async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      debugPrint('Attempting signIn for email: $email');
+      await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
       return null;
     } on FirebaseAuthException catch (e) {
-      return e.message;
+      debugPrint('SignIn error: code=${e.code}, message=${e.message}, details=${e.toString()}');
+      String errorMsg = e.message ?? e.code.replaceAll('-', ' ').replaceAll('.', '');
+      return errorMsg;
+    } catch (e) {
+      debugPrint('SignIn generic error: $e');
+      return e.toString();
     }
   }
 
   static Future<String?> signUp(String email, String password) async {
     try {
-      final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final cred = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -44,7 +57,7 @@ class AuthService {
 
   static Future<String?> deleteAccount() async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      final user = _auth.currentUser;
       if (user == null) return 'No user is currently signed in.';
       final uid = user.uid;
       // Delete user data from Firestore (customize as needed for your data model)
@@ -71,7 +84,7 @@ class AuthService {
     String? profilePicture,
   }) async {
     try {
-      final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final cred = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );

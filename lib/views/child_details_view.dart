@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_harmony/screens/screen_time_screen.dart';
+import '../screens/child_dashboard_screen.dart';
 import '../controllers/child_details_controller.dart';
 import '../models/child_details.dart';
 import '../services/auth_service.dart';
@@ -120,6 +121,7 @@ class _ChildDetailsViewState extends ConsumerState<ChildDetailsView> {
                   icon: Icons.hourglass_empty_outlined,
                   children: [ListTile(title: Text(details.screenTimeSummary))],
                 ),
+
                 if (details.deviceStatus != null) ...[
                   const SizedBox(height: 16),
                   _ExpandablePanel(
@@ -128,6 +130,25 @@ class _ChildDetailsViewState extends ConsumerState<ChildDetailsView> {
                     children: [ListTile(title: Text(details.deviceStatus!))],
                   ),
                 ],
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.visibility),
+                    label: const Text('View as Child'),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ChildDashboardScreen(
+                            familyId: widget.familyId,
+                            childId: widget.childId,
+                            childName: details.name,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ],
             );
           },
@@ -237,7 +258,7 @@ class _ProfileSection extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
-                    '⚠️ Important: After creating the account, the app will sign you in with the child\'s credentials to test the account. You can sign back in with your parent account afterward.',
+                    'The child will be able to sign in with these credentials on their own device.',
                     style: TextStyle(fontSize: 13),
                   ),
                 ),
@@ -261,8 +282,6 @@ class _ProfileSection extends StatelessWidget {
   }
 
   Future<void> _upgradeToFullAccount(BuildContext context) async {
-    // Store the parent user's ID before potentially triggering auth change
-    final parentUserId = FirebaseAuth.instance.currentUser?.uid;
 
     final result = await showDialog<String?>(
       context: context,
@@ -282,10 +301,6 @@ class _ProfileSection extends StatelessWidget {
       // Wait a moment for the auth state to settle
       await Future.delayed(const Duration(seconds: 1));
 
-      // Check if we're now signed in with a different user
-      final currentUser = FirebaseAuth.instance.currentUser?.uid;
-      final isDifferentUser = parentUserId != null && currentUser != parentUserId;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Column(
@@ -297,19 +312,13 @@ class _ProfileSection extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              if (isDifferentUser)
-                const Text(
-                  'You are now signed in with the child\'s credentials. Sign back in as parent to continue managing the family.',
-                  style: TextStyle(fontSize: 12),
-                )
-              else
-                const Text(
-                  'Account created successfully! The child can now sign in independently.',
-                  style: TextStyle(fontSize: 12),
-                ),
+              const Text(
+                'Account created successfully! The child can now sign in independently.',
+                style: TextStyle(fontSize: 12),
+              ),
             ],
           ),
-          duration: const Duration(seconds: 10),
+          duration: const Duration(seconds: 5),
         ),
       );
     } else if (result != null && context.mounted) {
@@ -328,7 +337,7 @@ class _ProfileSection extends StatelessWidget {
 
       // Create the full child account using AuthService
       // This creates a new document with the child auth UID as document ID
-      final err = await AuthService.createChildAccount(
+      final (newChildUid, err) = await AuthService.createChildAccount(
         parentUid: familyId, // familyId is the parent UID
         parentEmail: parentEmail,
         childName: details.name,
@@ -337,7 +346,14 @@ class _ProfileSection extends StatelessWidget {
         password: password,
       );
 
-      if (err == null) {
+      if (err == null && newChildUid != null) {
+        // Migrate data from old local profile to new full profile
+        await AuthService.migrateChildData(
+          oldChildId: childId,
+          newChildId: newChildUid,
+          familyId: familyId,
+        );
+
         // Delete the old local profile document now that we have the full account
         // The AuthService.createChildAccount already created the new document
         try {

@@ -25,6 +25,11 @@ service cloud.firestore {
       match /consequences/{consequenceId} {
         allow read, write: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
       }
+
+      match /activity_logs/{logId} {
+        allow read: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids || request.auth.uid == resource.data.userId;
+        allow write: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
+      }
     }
 
     match /users/{userId} {

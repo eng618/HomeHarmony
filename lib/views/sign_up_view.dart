@@ -21,8 +21,7 @@ class SignUpView extends StatelessWidget {
               AuthForm(
                 title: 'Sign Up',
                 actionText: 'Sign Up',
-                onSubmit: (email, password) =>
-                    AuthService.signUp(email, password),
+                formType: AuthFormType.signUp,
               ),
               const SizedBox(height: 16),
               TextButton(

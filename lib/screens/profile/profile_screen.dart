@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../utils/auth_providers.dart';
 import '../../views/profile/profile_info_view.dart';
 import '../../views/profile/profile_error_view.dart';
 import 'settings_screen.dart';
@@ -19,7 +20,6 @@ class ProfileScreen extends ConsumerStatefulWidget {
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   DocumentSnapshot<Map<String, dynamic>>? _cachedProfile;
   bool _loading = false;
-  bool _signingOut = false;
   String? _error;
 
   @override
@@ -55,6 +55,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authControllerProvider);
+
     if (_loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -65,21 +67,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       user: widget.user,
       data: _cachedProfile?.data(),
       onOpenSettings: () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
       },
-      signingOut: _signingOut,
+      signingOut: authState.isLoading,
       onSignOut: () async {
-        setState(() => _signingOut = true);
-        try {
-          await FirebaseAuth.instance.signOut();
-          if (!context.mounted) return;
-        } catch (e) {
-          setState(() => _signingOut = false);
-          if (!context.mounted) return;
+        final authController = ref.read(authControllerProvider.notifier);
+        final error = await authController.signOut();
+        if (error != null && context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Sign out failed: \\${e.toString()}')),
+            SnackBar(content: Text('Sign out failed: $error')),
           );
         }
       },

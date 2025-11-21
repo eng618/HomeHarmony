@@ -21,8 +21,7 @@ class SignInView extends StatelessWidget {
               AuthForm(
                 title: 'Sign In',
                 actionText: 'Sign In',
-                onSubmit: (email, password) =>
-                    AuthService.signIn(email, password),
+                formType: AuthFormType.signIn,
               ),
               const SizedBox(height: 16),
               TextButton(

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_harmony/utils/app_theme.dart';
+import 'package:home_harmony/utils/auth_providers.dart';
 import 'views/auth_screen.dart';
+import 'views/main_shell.dart';
 
 import 'firebase_options.dart';
 
@@ -23,15 +25,47 @@ void main() async {
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch authentication state to determine which screen to show
+    final authState = ref.watch(authStateProvider);
+
     return MaterialApp(
       title: 'Home Harmony',
       theme: AppTheme.theme,
-      home: const AuthScreen(),
+      home: authState.when(
+        data: (user) => user != null
+            ? MainShell(user: user)
+            : const AuthScreen(),
+        loading: () => const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+        error: (error, stack) => Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Authentication Error'),
+                const SizedBox(height: 8),
+                Text('$error'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    // Retry by refreshing the provider
+                    ref.invalidate(authStateProvider);
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

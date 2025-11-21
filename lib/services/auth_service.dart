@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'screen_time_service.dart';
 import '../models/screen_time_models.dart';
 import 'package:flutter/foundation.dart';
+import '../utils/error_message_mapper.dart';
 
 class AuthService {
   static FirebaseAuth? _authInstance;
@@ -51,7 +52,7 @@ class AuthService {
           });
       return null;
     } on FirebaseAuthException catch (e) {
-      return e.message;
+      return ErrorMessageMapper.mapError(e);
     }
   }
 
@@ -66,10 +67,9 @@ class AuthService {
       await user.delete();
       return null;
     } on FirebaseAuthException catch (e) {
-      // If recent login is required, handle accordingly in the UI
-      return e.message;
+      return ErrorMessageMapper.mapError(e);
     } catch (e) {
-      return e.toString();
+      return ErrorMessageMapper.catchError(e);
     }
   }
 

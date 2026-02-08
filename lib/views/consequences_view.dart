@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/consequence_model.dart';
 import '../models/child_profile.dart';
 import '../models/rule_model.dart';
 import '../utils/consequence_providers.dart';
+import '../services/screen_time_service.dart';
+import '../utils/screen_time_providers.dart';
+import '../utils/activity_log_providers.dart';
+import '../models/activity_log_model.dart';
 
 /// Top-level view for listing and managing consequences for a family.
 class ConsequencesView extends ConsumerWidget {
@@ -23,6 +29,58 @@ class ConsequencesView extends ConsumerWidget {
     this.onDelete,
     this.onAdd,
   });
+
+  void _applyConsequence(BuildContext context, WidgetRef ref, Consequence consequence) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Apply Consequence'),
+          content: DropdownButtonFormField<String>(
+            hint: const Text('Select a child'),
+            items: children
+                .map((child) => DropdownMenuItem(
+                      value: child.id,
+                      child: Text(child.name),
+                    ))
+                .toList(),
+            onChanged: (childId) {
+              if (childId != null) {
+                final screenTimeService = ref.read(screenTimeServiceProvider);
+                final consequenceService = ref.read(consequenceServiceProvider);
+
+                screenTimeService.addScreenTime(
+                  familyId: familyId,
+                  childId: childId,
+                  minutes: -consequence.deductionMinutes,
+                );
+
+                consequenceService.updateConsequence(familyId, consequence.id, {
+                  'appliedAt': Timestamp.now(),
+                  'appliedTo': childId,
+                });
+
+                final activityLogService = ref.read(activityLogServiceProvider);
+                final user = FirebaseAuth.instance.currentUser;
+                final child = children.firstWhere((c) => c.id == childId);
+                final log = ActivityLog(
+                  id: '',
+                  timestamp: Timestamp.now(),
+                  userId: user!.uid,
+                  type: 'consequence',
+                  description: '${consequence.title} consequence applied to ${child.name}.',
+                  familyId: familyId,
+                );
+                activityLogService.addActivityLog(log);
+
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -66,11 +124,18 @@ class ConsequencesView extends ConsumerWidget {
                                 orElse: () => Rule(id: ruleId, title: ruleId, description: '', assignedChildren: [], createdBy: '', createdAt: null),
                               ).title).join(", ")}',
                             ),
+                          if (c.appliedTo != null)
+                            Text('Applied to: ${children.firstWhere((child) => child.id == c.appliedTo, orElse: () => ChildProfile(id: c.appliedTo!, name: 'Unknown', parentId: '', profilePicture: '', age: 0, profileType: 'local')).name}'),
                         ],
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          IconButton(
+                            icon: const Icon(Icons.send),
+                            tooltip: 'Apply',
+                            onPressed: () => _applyConsequence(context, ref, c),
+                          ),
                           IconButton(
                             icon: const Icon(Icons.edit),
                             tooltip: 'Edit',

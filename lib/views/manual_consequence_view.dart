@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/child_profile.dart';
 import '../services/screen_time_service.dart';
+import '../models/activity_log_model.dart';
+import '../utils/activity_log_providers.dart';
+import '../utils/screen_time_providers.dart';
 
 /// View for manually deducting screen time from a child.
 class ManualConsequenceView extends ConsumerStatefulWidget {
@@ -44,13 +49,27 @@ class _ManualConsequenceViewState extends ConsumerState<ManualConsequenceView> {
       _infoMessage = null;
     });
     try {
-      final service = ScreenTimeService();
-      await service.addRewardToBucket(
+      final service = ref.read(screenTimeServiceProvider);
+      await service.addScreenTime(
         familyId: widget.familyId,
         childId: _selectedChildId!,
         minutes: -minutes, // Negative to deduct
         reason: 'manual_consequence',
       );
+
+      final activityLogService = ref.read(activityLogServiceProvider);
+      final user = FirebaseAuth.instance.currentUser;
+      final child = widget.children.firstWhere((c) => c.id == _selectedChildId);
+      final log = ActivityLog(
+        id: '',
+        timestamp: Timestamp.now(),
+        userId: user!.uid,
+        type: 'consequence',
+        description: 'Manually deducted $minutes minutes from ${child.name}.',
+        familyId: widget.familyId,
+      );
+      await activityLogService.addActivityLog(log);
+
       setState(() {
         _infoMessage = 'Deducted $minutes minutes from child.';
         _minutesController.clear();

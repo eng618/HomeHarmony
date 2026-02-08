@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../views/behavior/rules_view.dart';
 import '../views/behavior/rewards_view.dart';
 import '../views/behavior/consequences_view_tab.dart';
+import '../views/behavior/chores_view_tab.dart';
 
 /// Unified Behavior screen with tabs for Rules, Rewards, and Consequences.
 class BehaviorScreen extends StatefulWidget {
@@ -20,7 +21,7 @@ class _BehaviorScreenState extends State<BehaviorScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -40,6 +41,7 @@ class _BehaviorScreenState extends State<BehaviorScreen>
             Tab(icon: Icon(Icons.rule), text: 'Rules'),
             Tab(icon: Icon(Icons.emoji_events), text: 'Rewards'),
             Tab(icon: Icon(Icons.warning), text: 'Consequences'),
+            Tab(icon: Icon(Icons.check_circle_outline), text: 'Chores'),
           ],
         ),
       ),
@@ -49,6 +51,7 @@ class _BehaviorScreenState extends State<BehaviorScreen>
           RulesView(user: widget.user),
           RewardsView(user: widget.user),
           ConsequencesViewTab(user: widget.user),
+          ChoresViewTab(user: widget.user),
         ],
       ),
     );

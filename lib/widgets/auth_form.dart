@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/auth_providers.dart';
 
-/// A reusable authentication form for sign in and sign up.
+enum AuthFormType { signIn, signUp }
+
+/// A reusable authentication form for sign in and sign up using Riverpod.
 class AuthForm extends ConsumerStatefulWidget {
   final String title;
   final String actionText;
-  final Future<String?> Function(String email, String password) onSubmit;
+  final AuthFormType formType;
   final bool showNameField;
 
   const AuthForm({
     super.key,
     required this.title,
     required this.actionText,
-    required this.onSubmit,
+    required this.formType,
     this.showNameField = false,
   });
 
@@ -27,8 +29,6 @@ class _AuthFormState extends ConsumerState<AuthForm> {
   final nameController = TextEditingController();
   final FocusNode emailFocus = FocusNode();
   final FocusNode passwordFocus = FocusNode();
-  String? error;
-  bool loading = false;
 
   @override
   void dispose() {
@@ -41,33 +41,29 @@ class _AuthFormState extends ConsumerState<AuthForm> {
   }
 
   Future<void> _submit() async {
-    setState(() {
-      error = null;
-      loading = true;
-    });
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
-    final err = await widget.onSubmit(email, password);
-    if (err != null) {
-      setState(() {
-        error = err;
-        loading = false;
-      });
+
+    if (email.isEmpty || password.isEmpty) {
+      return;
+    }
+
+    final authController = ref.read(authControllerProvider.notifier);
+
+    switch (widget.formType) {
+      case AuthFormType.signIn:
+        await authController.signIn(email, password);
+        break;
+      case AuthFormType.signUp:
+        await authController.signUp(email, password);
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final userAsync = ref.watch(authStateProvider);
-    userAsync.when(
-      data: (user) {
-        if (user != null) {
-          // Navigation is now handled globally in main.dart/MyApp
-        }
-      },
-      loading: () {},
-      error: (error, stack) {},
-    );
+    final authState = ref.watch(authControllerProvider);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -97,16 +93,27 @@ class _AuthFormState extends ConsumerState<AuthForm> {
           obscureText: true,
           textInputAction: TextInputAction.done,
           onSubmitted: (_) {
-            if (!loading) _submit();
+            if (authState.isLoading) return;
+            _submit();
           },
         ),
-        if (error != null) ...[
-          const SizedBox(height: 8),
-          Text(error!, style: const TextStyle(color: Colors.red)),
-        ],
+        authState.when(
+          data: (_) => const SizedBox(),
+          loading: () => const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: CircularProgressIndicator(),
+          ),
+          error: (error, stack) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              error.toString(),
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        ),
         const SizedBox(height: 16),
         ElevatedButton(
-          onPressed: loading ? null : _submit,
+          onPressed: authState.isLoading ? null : _submit,
           child: Text(widget.actionText),
         ),
       ],

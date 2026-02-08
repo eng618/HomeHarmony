@@ -45,7 +45,7 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
       builder: (ctx) => AlertDialog(
         content: ChildAccountForm(
           onSubmit: (name, age, email, password) async {
-            final err = await AuthService.createChildAccount(
+            final (_, err) = await AuthService.createChildAccount(
               parentUid: widget.user.uid,
               parentEmail: widget.user.email ?? '',
               childName: name,

@@ -6,10 +6,12 @@ service cloud.firestore {
 
       match /children/{childId} {
         allow create: if request.auth.uid == request.resource.data.parent_id;
-        allow read, update, delete: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
+        allow read: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids || request.auth.uid == childId;
+        allow update, delete: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
 
         match /screen_time/{docId} {
           allow read, write: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
+          allow read: if request.auth.uid == docId; // Child can read their own screen time
 
           match /sessions/{sessionId} {
             allow read, write: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
@@ -19,15 +21,29 @@ service cloud.firestore {
 
       match /rules/{ruleId} {
         allow read, write: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
+        allow read: if exists(/databases/$(database)/documents/families/$(familyId)).data && request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'child';
       }
 
       match /consequences/{consequenceId} {
         allow read, write: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
+        allow read: if request.auth.uid == resource.data.applied_to;
+      }
+
+      match /chores/{choreId} {
+        allow read, write: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
+        allow read: if request.auth.uid in resource.data.assigned_children;
+        allow write: if request.auth.uid in resource.data.assigned_children; // Allow children to update chore status
+      }
+
+      match /activity_logs/{logId} {
+        allow read: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids || request.auth.uid == resource.data.userId;
+        allow write: if request.auth.uid in get(/databases/$(database)/documents/families/$(familyId)).data.parent_ids;
       }
     }
 
     match /users/{userId} {
-      allow read, write: if request.auth.uid == userId;
+      allow read, write: if request.auth.uid == userId ||
+                          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'parent';
     }
   }
 }

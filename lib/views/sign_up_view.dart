@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/auth_form.dart';
-import '../services/auth_service.dart';
+import 'settings/privacy_policy_view.dart';
 
 /// View for parent sign up.
 class SignUpView extends StatelessWidget {
@@ -20,13 +20,22 @@ class SignUpView extends StatelessWidget {
               AuthForm(
                 title: 'Sign Up',
                 actionText: 'Sign Up',
-                onSubmit: (email, password) =>
-                    AuthService.signUp(email, password),
+                formType: AuthFormType.signUp,
               ),
               const SizedBox(height: 16),
               TextButton(
                 onPressed: onSwitch,
                 child: const Text('Already have an account? Sign in'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const PrivacyPolicyView(),
+                    ),
+                  );
+                },
+                child: const Text('Privacy Policy'),
               ),
             ],
           ),

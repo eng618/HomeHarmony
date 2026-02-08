@@ -258,8 +258,8 @@ class ScreenTimeService {
     }
   }
 
-  /// Adds a reward (screen time minutes) to a child's bucket.
-  Future<void> addRewardToBucket({
+  /// Adds screen time minutes to a child's bucket.
+  Future<void> addScreenTime({
     required String familyId,
     required String childId,
     required int minutes,

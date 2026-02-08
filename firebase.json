@@ -1,31 +1,42 @@
 {
-  "flutter": {
-    "platforms": {
-      "android": {
-        "default": {
-          "projectId": "home-harmony-d0778",
-          "appId": "1:69205718699:android:1a8ffe019ad38b348669ee",
-          "fileOutput": "android/app/google-services.json"
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "home-harmony-d0778",
+                    "appId": "1:69205718699:android:1a8ffe019ad38b348669ee",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "home-harmony-d0778",
+                    "configurations": {
+                        "android": "1:69205718699:android:1a8ffe019ad38b348669ee",
+                        "ios": "1:69205718699:ios:7e4799e1fbd539d58669ee",
+                        "macos": "1:69205718699:ios:1d68f19e9a1e4c628669ee",
+                        "web": "1:69205718699:web:7d549b5a7509df648669ee",
+                        "windows": "1:69205718699:web:a01f4992633013888669ee"
+                    }
+                }
+            }
         }
-      },
-      "dart": {
-        "lib/firebase_options.dart": {
-          "projectId": "home-harmony-d0778",
-          "configurations": {
-            "android": "1:69205718699:android:1a8ffe019ad38b348669ee",
-            "ios": "1:69205718699:ios:7e4799e1fbd539d58669ee",
-            "macos": "1:69205718699:ios:1d68f19e9a1e4c628669ee",
-            "web": "1:69205718699:web:7d549b5a7509df648669ee",
-            "windows": "1:69205718699:web:a01f4992633013888669ee"
-          }
-        }
-      }
+    },
+    "firestore": {
+        "rules": "firestore.rules"
+    },
+    "hosting": {
+        "public": "build/web",
+        "ignore": [
+            "firebase.json",
+            "**/.*",
+            "**/node_modules/**"
+        ],
+        "rewrites": [
+            {
+                "source": "**",
+                "destination": "/index.html"
+            }
+        ]
     }
-  },
-  "firestore": { "rules": "firestore.rules" },
-  "hosting": {
-    "public": "build/web",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [{ "source": "**", "destination": "/index.html" }]
-  }
 }

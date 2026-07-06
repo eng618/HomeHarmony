@@ -23,7 +23,7 @@ jobs:
           channel: stable
 
       - name: Set up Task
-        uses: arduino/setup-task@v2
+        uses: arduino/setup-task@v3
 
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
